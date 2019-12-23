@@ -1,12 +1,13 @@
 body {
-	background: #fafafa;
+  background: #fafafa;
+  margin: 0;
 }
 
 @keyframes rotate {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(359deg);
-	}
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }

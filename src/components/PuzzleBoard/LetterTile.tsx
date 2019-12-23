@@ -1,30 +1,36 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 
 interface LetterTileProps {
-	character: string; // Should be character type
-	unlocked: boolean;
+  character: string; // Should be character type
+  unlocked: boolean;
 }
 
-const LetterTileElement = styled.div<{ unlocked: boolean }>`
-	width: calc(100% / 14 - 4px);
-	height: 50px;
-	line-height: 50px;
-	border: 2px solid black;
+const LetterTileElement = styled.div<{ background: string }>`
+  width: calc(100% / 14 - 4px);
+  height: 50px;
+  line-height: 50px;
+  border: 2px solid black;
 
-	background: ${props => (props.unlocked ? 'white' : 'blue')};
+  background: ${props => props.background};
 `;
 
-export class LetterTile extends React.Component<LetterTileProps> {
-	constructor(props: LetterTileProps) {
-		super(props);
-	}
+const LetterTile: FunctionComponent<LetterTileProps> = props => {
+  const { character, unlocked } = props;
+  const isEmpty = character === ' ';
+  let background = 'blue';
 
-	render() {
-		const { character, unlocked } = this.props;
+  if (unlocked) {
+    background = 'white';
+  } else if (!isEmpty) {
+    background = 'lightgray';
+  }
 
-		return (
-			<LetterTileElement unlocked={unlocked}>{character}</LetterTileElement>
-		);
-	}
-}
+  return (
+    <LetterTileElement background={background}>
+      {unlocked && character}
+    </LetterTileElement>
+  );
+};
+
+export default LetterTile;
