@@ -2,11 +2,17 @@ import styled from 'styled-components';
 import React, { createRef } from 'react';
 import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
-import CenterAlign from './layout/CenterAlign';
+import { CenterAlign } from './layout';
+import { Sector } from '../store/createStore';
+
+const MIN_SPIN_TIME = 2;
+const MAX_SPIN_TIME = 2;
+const SECTOR_COUNT = 24;
+const SETOR_WIDTH_IN_DEG = 360 / SECTOR_COUNT;
+const ARROW_OFFSET = 270;
 
 const Container = styled.div`
   max-width: 600px;
-  padding-right: 50px;
   position: relative;
 `;
 
@@ -16,7 +22,7 @@ const WheelImage = styled.div<{ isSpinning: boolean }>`
   position: relative;
   background: url('wheel2.png');
   background-size: contain;
-  animation: rotate 2s infinite linear;
+  animation: rotate 1.5s infinite linear;
   animation-play-state: ${props => (props.isSpinning ? 'play' : 'paused')};
 `;
 
@@ -24,23 +30,23 @@ const Arrow = styled.div`
   position: absolute;
   border: 20px black solid;
   border: 10px transparent solid;
-  border-right: 20px black solid;
+  border-right: 20px #4caf50 solid;
   transform: scale(4, 2);
-  right: 50px;
+  right: 0;
   top: calc(50% - 20px);
 `;
-export enum SECTORS {
-  BANKRUPT = 'bankrupt',
-  LOSE_A_TURN = 'lose_a_turn',
-  POINTS_5000 = '5000',
-  POINTS_900 = '900',
-  POINTS_800 = '800',
-  POINTS_700 = '700',
-  POINTS_650 = '650',
-  POINTS_600 = '600',
-  POINTS_550 = '550',
-  POINTS_500 = '500'
-}
+
+const SpinButton = styled.button`
+  position: absolute;
+  left: calc(50% - 75px);
+  top: calc(50% - 75px);
+  width: 150px;
+  height: 150px;
+  font-size: 24px;
+  background: greenyellow;
+  border-radius: 50%;
+`;
+
 /*const sectors = [
   2500,
   'bankrupt',
@@ -68,30 +74,30 @@ export enum SECTORS {
   'wild00'
 ];*/
 const sectors = [
-  SECTORS.LOSE_A_TURN,
-  SECTORS.POINTS_700,
-  SECTORS.POINTS_900,
-  SECTORS.POINTS_650,
-  SECTORS.BANKRUPT,
-  SECTORS.POINTS_900,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_550,
-  SECTORS.POINTS_600,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_700,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_800,
-  SECTORS.POINTS_600,
-  SECTORS.POINTS_700,
-  SECTORS.POINTS_900,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_5000,
-  SECTORS.BANKRUPT,
-  SECTORS.POINTS_900,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_650,
-  SECTORS.POINTS_500,
-  SECTORS.POINTS_800
+  Sector.LOSE_A_TURN,
+  Sector.POINTS_700,
+  Sector.POINTS_900,
+  Sector.POINTS_650,
+  Sector.BANKRUPT,
+  Sector.POINTS_900,
+  Sector.POINTS_500,
+  Sector.POINTS_550,
+  Sector.POINTS_600,
+  Sector.POINTS_500,
+  Sector.POINTS_700,
+  Sector.POINTS_500,
+  Sector.POINTS_800,
+  Sector.POINTS_600,
+  Sector.POINTS_700,
+  Sector.POINTS_900,
+  Sector.POINTS_500,
+  Sector.POINTS_5000,
+  Sector.BANKRUPT,
+  Sector.POINTS_900,
+  Sector.POINTS_500,
+  Sector.POINTS_650,
+  Sector.POINTS_500,
+  Sector.POINTS_800
 ];
 
 /**
@@ -127,12 +133,6 @@ function getRotation(element: HTMLElement): number {
   return 0;
 }
 
-const MIN_SPIN_TIME = 2;
-const MAX_SPIN_TIME = 1;
-const SECTOR_COUNT = 24;
-const SETOR_WIDTH_IN_DEG = 360 / SECTOR_COUNT;
-const ARROW_OFFSET = 270;
-
 function getSpinResult(degrees: number): number {
   let degreesWithArrowOffset = degrees - SETOR_WIDTH_IN_DEG / 2 + ARROW_OFFSET;
   const sector =
@@ -167,9 +167,12 @@ export const Wheel: React.FunctionComponent = observer(props => {
           <WheelImage ref={wheelImageRef} isSpinning={store.isSpinning} />
           <Arrow />
         </div>
-        <button disabled={store.isSpinning} onClick={spin}>
+        <SpinButton
+          disabled={store.isSpinning || !store.players.length}
+          onClick={spin}
+        >
           Spin
-        </button>
+        </SpinButton>
       </Container>
     </CenterAlign>
   );

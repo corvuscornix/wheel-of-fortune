@@ -1,38 +1,52 @@
 import './App.css';
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { PuzzleBoard } from './components/PuzzleBoard/PuzzleBoard';
-import { Wheel } from './components/Wheel';
 import { observer } from 'mobx-react';
 import { useStore } from './store/store';
-import { LetterPanel } from './components/LetterPanel';
+import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
+import { FlexColumn, FlexRow } from './components/layout';
 
 const AppContainer = styled.div`
-  text-align: center;
-  max-width: 1000px;
   margin: auto;
 `;
 
 const AppHeader = styled.header`
-  background-color: #222;
-  height: 50px;
+  background-color: #070799;
   padding: 20px;
+  display: flex;
   color: white;
 `;
 
-const AppTitle = styled.h1`
+const AppTitle = styled.span`
   font-size: 1.5em;
+  flex-grow: 2;
+`;
+
+const AppMain = styled.main`
+  max-width: 1000px;
 `;
 
 const App: FunctionComponent = observer(() => {
   const store = useStore();
   const { puzzle, unlockedLetters } = store;
-  console.log(puzzle);
+
   return (
     <AppContainer>
-      <PuzzleBoard puzzle={puzzle} unlockedLetters={unlockedLetters} />
-      <LetterPanel />
-      <Wheel />
+      <AppHeader>
+        <AppTitle>Wheel of Fortune</AppTitle>
+      </AppHeader>
+      <AppMain>
+        <FlexRow>
+          <FlexRow>
+            <Players />
+          </FlexRow>
+          <FlexColumn>
+            <PuzzleBoard puzzle={puzzle} unlockedLetters={unlockedLetters} />
+            <LetterPanel />
+            <Wheel />
+          </FlexColumn>
+        </FlexRow>
+      </AppMain>
     </AppContainer>
   );
 });
