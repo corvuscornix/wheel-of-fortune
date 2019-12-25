@@ -45,6 +45,10 @@ const SpinButton = styled.button`
   font-size: 24px;
   background: greenyellow;
   border-radius: 50%;
+
+  :disabled {
+    display: none;
+  }
 `;
 
 /*const sectors = [
@@ -133,14 +137,14 @@ function getRotation(element: HTMLElement): number {
   return 0;
 }
 
-function getSpinResult(degrees: number): number {
+function getSpinResult(degrees: number): Sector {
   let degreesWithArrowOffset = degrees - SETOR_WIDTH_IN_DEG / 2 + ARROW_OFFSET;
   const sector =
     Math.ceil(degreesWithArrowOffset / (360 / SECTOR_COUNT)) % SECTOR_COUNT;
   console.log(
     `degrees ${degreesWithArrowOffset}, sector number: ${sector}, ${sectors[sector]}`
   );
-  return sector;
+  return sectors[sector];
 }
 
 const wheelImageRef = createRef<HTMLDivElement>();
@@ -153,10 +157,9 @@ export const Wheel: React.FunctionComponent = observer(props => {
     const randomSpinTime = MIN_SPIN_TIME + Math.random() * MAX_SPIN_TIME;
     console.log(`spin for ${randomSpinTime} sec`);
     setTimeout(() => {
-      store.spinResult = getSpinResult(
-        getRotation(wheelImageRef.current as HTMLElement)
+      store.handleSpinResult(
+        getSpinResult(getRotation(wheelImageRef.current as HTMLElement))
       );
-      store.isSpinning = false;
     }, randomSpinTime * 1000);
   };
 
@@ -168,7 +171,9 @@ export const Wheel: React.FunctionComponent = observer(props => {
           <Arrow />
         </div>
         <SpinButton
-          disabled={store.isSpinning || !store.players.length}
+          disabled={
+            store.isSpinning || !store.players.length || !!store.spinResult
+          }
           onClick={spin}
         >
           Spin

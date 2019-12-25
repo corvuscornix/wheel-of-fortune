@@ -4,8 +4,6 @@ import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
 import { CenterAlign } from './layout';
 
-const BUY_VOCAL_PRICE = 250;
-
 const ContainerDiv = styled.div`
   width: 100%;
   text-align: center;
@@ -28,10 +26,9 @@ export const LetterPanel: FunctionComponent = observer(() => {
     consonantOptions,
     unlockedLetters,
     vocalOptions,
-    players,
-    currentPlayer,
-    attemptLetter,
-    spinResult
+    isVocalAvailable,
+    isConsonantAvailable,
+    attemptLetter
   } = store;
 
   return (
@@ -42,11 +39,7 @@ export const LetterPanel: FunctionComponent = observer(() => {
             <LetterButton
               key={letter}
               onClick={() => attemptLetter(letter)}
-              disabled={
-                !spinResult ||
-                unlockedLetters.has(letter) ||
-                players[currentPlayer].points < BUY_VOCAL_PRICE
-              }
+              disabled={!isVocalAvailable || unlockedLetters.has(letter)}
               vocal={true}
             >
               {letter}
@@ -58,7 +51,7 @@ export const LetterPanel: FunctionComponent = observer(() => {
             <LetterButton
               key={letter}
               onClick={() => attemptLetter(letter)}
-              disabled={!spinResult || unlockedLetters.has(letter)}
+              disabled={!isConsonantAvailable || unlockedLetters.has(letter)}
             >
               {letter}
             </LetterButton>

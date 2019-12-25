@@ -26,23 +26,27 @@ const AppMain = styled.main`
   max-width: 1000px;
 `;
 
+const AnnouncementText = styled.div`
+  text-align: center;
+  font-size: 16px;
+  padding: 8px;
+`;
+
 const App: FunctionComponent = observer(() => {
   const store = useStore();
   const { puzzle, unlockedLetters } = store;
 
   return (
     <AppContainer>
-      <AppHeader>
-        <AppTitle>Wheel of Fortune</AppTitle>
-      </AppHeader>
       <AppMain>
         <FlexRow>
           <FlexRow>
             <Players />
           </FlexRow>
-          <FlexColumn>
+          <FlexColumn grow="2">
             <PuzzleBoard puzzle={puzzle} unlockedLetters={unlockedLetters} />
-            <LetterPanel />
+            <AnnouncementText>{store.announcementText}</AnnouncementText>
+            {store.isConsonantAvailable && <LetterPanel />}
             <Wheel />
           </FlexColumn>
         </FlexRow>

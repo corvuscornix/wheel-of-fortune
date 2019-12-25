@@ -7,7 +7,7 @@ const Container = styled.div`
   width: 200px;
   background-color: #070799;
   color: white;
-  padding: 0 16px 0 16px;
+  padding-left: 16px;
 `;
 
 const RemoveButton = styled.button`
@@ -36,12 +36,12 @@ export const Players: React.FunctionComponent<{}> = observer(() => {
 
   return (
     <Container>
-      <span>Players:</span>
+      <p>Players:</p>
       {players.map((player, index) => (
         <div
           key={player.name}
           style={{
-            fontWeight: index === currentPlayer ? 'bold' : undefined
+            fontWeight: player === currentPlayer ? 'bold' : undefined
           }}
         >
           {`${player.name}   ${player.points} pts`}

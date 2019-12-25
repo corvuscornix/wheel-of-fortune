@@ -1,8 +1,12 @@
+import { observable } from 'mobx';
+
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<
   infer ElementType
 >
   ? ElementType
   : never;
+
+const BUY_VOCAL_PRICE = 250;
 
 const vocals = ['A', 'E', 'I', 'O', 'U', 'Y', 'Å', 'Ä', 'Ö'] as const;
 const consonants = [
@@ -47,7 +51,13 @@ export enum Sector {
 }
 
 export class Player {
-  constructor(public name: string, public points: number = 0) {}
+  @observable name: string = '';
+  @observable points = 0;
+  @observable totalPoints = 0;
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
 
 export type TStore = {
@@ -58,13 +68,17 @@ export type TStore = {
   isSpinning: boolean;
   spinResult: Sector | null;
   players: Player[];
-  currentPlayer: number;
+  currentPlayer: Player | null;
   addPlayer(name: string): void;
   removePlayer(name: string): void;
-  goToNextPlayer(): void;
+  changeTurn(): void;
   editingPlayers: boolean;
   attemptLetter(letter: Letter): void;
   handleSpinResult(sector: Sector): void;
+  isVocalAvailable: boolean;
+  isConsonantAvailable: boolean;
+  announcementText: string;
+  _userIndex: number;
 };
 
 export const createStore = (): TStore => {
@@ -75,56 +89,90 @@ export const createStore = (): TStore => {
     unlockedLetters: new Set<Letter>(),
     isSpinning: false,
     spinResult: null,
-    players: [],
-    currentPlayer: 0,
+    players: [new Player('Antero'), new Player('Amal')],
     editingPlayers: false,
+    _userIndex: 0,
+    announcementText: 'Welcome to Wheel of Fortune!',
 
-    addPlayer(name: string) {
+    addPlayer(name: string): void {
       this.players.push(new Player(name));
     },
 
-    removePlayer(name: string) {
+    removePlayer(name: string): void {
       this.players = this.players.filter(player => player.name !== name);
     },
 
-    handleSpinResult(result: Sector) {
-      console.log(result);
+    get currentPlayer(): Player {
+      return this.players[this._userIndex % this.players.length];
+    },
+
+    handleSpinResult(result: Sector): void {
+      this.isSpinning = false;
+
+      if (this.currentPlayer === null)
+        throw new Error('Current player shouldnt be null');
       switch (result) {
         case Sector.BANKRUPT:
-          this.players[this.currentPlayer].points = 0;
-          this.goToNextPlayer();
+          this.currentPlayer.points = 0;
+          this.changeTurn();
           break;
         case Sector.LOSE_A_TURN:
-          this.goToNextPlayer();
+          this.changeTurn();
           break;
         default:
           this.spinResult = result;
+          this.announcementText = `${this.currentPlayer.name}, choose a letter. Vocals cost 250 points.`;
       }
     },
 
-    goToNextPlayer(): void {
-      this.currentPlayer += 1;
+    changeTurn(): void {
+      if (this.currentPlayer === null)
+        throw new Error("Current player shouldn't be null");
+      this._userIndex++;
       this.spinResult = null;
+      this.announcementText = `${this.currentPlayer.name}'s turn!`;
     },
 
     attemptLetter(letter: Letter): void {
+      if (this.currentPlayer === null)
+        throw new Error("Current player shouldn't be null");
+
+      const isVocal = vocals.indexOf(letter as Vocal) > -1;
+      if (isVocal) {
+        this.currentPlayer.points -= BUY_VOCAL_PRICE;
+      }
+
       if (
         this.puzzle.indexOf(letter) > -1 &&
         !this.unlockedLetters.has(letter) &&
         typeof this.spinResult === 'number'
       ) {
-        this.players[this.currentPlayer].points += this.spinResult;
-        console.log(
-          `player earned ${this.spinResult} pts and now has total ${
-            this.players[this.currentPlayer].points
-          }`
-        );
+        if (!isVocal) {
+          this.currentPlayer.points += this.spinResult;
+        }
+
         this.spinResult = null;
       } else {
-        this.goToNextPlayer();
+        this.changeTurn();
       }
 
       this.unlockedLetters.add(letter);
+    },
+
+    get isVocalAvailable(): boolean {
+      if (this.currentPlayer === null)
+        throw new Error("Current player shouldn't be null");
+
+      return (
+        this.spinResult !== null &&
+        this.players.length > 0 &&
+        this.currentPlayer.points >= BUY_VOCAL_PRICE &&
+        !this.isSpinning
+      );
+    },
+
+    get isConsonantAvailable(): boolean {
+      return this.spinResult !== null;
     }
   };
 };

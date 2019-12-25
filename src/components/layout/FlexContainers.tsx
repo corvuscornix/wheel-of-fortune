@@ -6,11 +6,12 @@ export const FlexRow = styled.div`
   overflow: hidden;
 `;
 
-export const FlexColumn = styled.div`
+export const FlexColumn = styled.div<{ grow?: string }>`
   position: relative;
   display: flex;
   overflow: hidden;
   flex-direction: column;
+  flex-grow: ${props => props.grow};
 `;
 
 export const CenterAlign = styled(FlexColumn)`
