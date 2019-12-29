@@ -3,6 +3,7 @@ import { createStore, TStore } from './createStore';
 import { useLocalStore } from 'mobx-react';
 
 const storeContext = React.createContext<TStore | null>(null);
+storeContext.displayName = 'Store';
 
 declare const window: any;
 

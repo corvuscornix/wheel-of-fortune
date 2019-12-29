@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import React, { createRef } from 'react';
 import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
@@ -172,7 +172,9 @@ export const Wheel: React.FunctionComponent = observer(props => {
         </div>
         <SpinButton
           disabled={
-            store.isSpinning || !store.players.length || store.spinResult !== null
+            store.isSpinning ||
+            !store.players.length ||
+            store.spinResult !== null
           }
           onClick={spin}
         >

@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import LetterTile from './LetterTile';
 import { Letter } from '../../store/createStore';
 import { useStore } from './../../store/store';
@@ -15,7 +15,7 @@ const Container = styled.div`
 
 export const PuzzleBoard: React.FunctionComponent = observer(() => {
   const store = useStore();
-  const { puzzle, unlockedLetters, solvingIndex } = store;
+  const { puzzle, unlockedLetters, solvingIndex, solveSentence } = store;
 
   let puzzleRows: string[] = [];
   let row = '';
@@ -55,17 +55,34 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
 
   let letterIndex = 0;
 
+  console.log(puzzleRows);
+
   return (
     <Container>
       {puzzleRows.map(row =>
         row.split('').map((letter, index) => {
-          // TODO: const thisIndex = letterIndex++;
+          const useSolveAttemptLetter = letter !== ' ' && solvingIndex !== null;
+          let thisLetterIndex = useSolveAttemptLetter
+            ? letterIndex++
+            : Infinity;
+
           return (
             <LetterTile
               key={index}
-              unlocked={unlockedLetters.has(letter as Letter)}
-              character={letter as Letter}
-              highlighted={letter !== ' ' && thisIndex === solvingIndex}
+              unlocked={
+                unlockedLetters.has(letter as Letter) ||
+                (useSolveAttemptLetter &&
+                  solvingIndex !== null &&
+                  thisLetterIndex < solvingIndex)
+              }
+              character={
+                solveSentence && useSolveAttemptLetter
+                  ? solveSentence[thisLetterIndex]
+                  : (letter as Letter)
+              }
+              highlighted={
+                useSolveAttemptLetter && thisLetterIndex === solvingIndex
+              }
             />
           );
         })

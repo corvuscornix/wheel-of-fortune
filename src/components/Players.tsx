@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { useStore } from './../store/store';
 import { observer } from 'mobx-react';
 
@@ -44,7 +44,7 @@ export const Players: React.FunctionComponent<{}> = observer(() => {
             fontWeight: player === currentPlayer ? 'bold' : undefined
           }}
         >
-          {`${player.name}   ${player.points} pts`}
+          {`${player.name} ${player.points} pts (total: ${player.totalPoints})`}
           {editingPlayers && (
             <RemoveButton onClick={() => removePlayer(player.name)}>
               X

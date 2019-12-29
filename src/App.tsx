@@ -1,13 +1,14 @@
 import './App.css';
 import React, { FunctionComponent } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './store/store';
 import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
 import { FlexColumn, FlexRow } from './components/layout';
 
-const AppContainer = styled.div`
+const Container = styled.div`
   margin: auto;
+  height: 100%;
 `;
 
 const AppHeader = styled.header`
@@ -24,6 +25,7 @@ const AppTitle = styled.span`
 
 const AppMain = styled.main`
   max-width: 1000px;
+  height: 100%;
 `;
 
 const AnnouncementText = styled.div`
@@ -36,7 +38,7 @@ const App: FunctionComponent = observer(() => {
   const store = useStore();
 
   return (
-    <AppContainer>
+    <Container>
       <AppMain>
         <FlexRow>
           <FlexRow>
@@ -55,7 +57,7 @@ const App: FunctionComponent = observer(() => {
           </FlexColumn>
         </FlexRow>
       </AppMain>
-    </AppContainer>
+    </Container>
   );
 });
 

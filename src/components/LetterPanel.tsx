@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
 import { CenterAlign } from './layout';

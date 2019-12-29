@@ -189,7 +189,8 @@ export const createStore = (): TStore => {
         // Last letter of solve attempt was entered, check whether the attempt is
         if (this.solvingIndex === null) {
           if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
-            this.announcementText = `Player ${this.currentPlayer.name} has won the game!`;
+            this.announcementText = `Player ${this.currentPlayer.name} has won the round!`;
+            this.currentPlayer.totalPoints += this.currentPlayer.points;
           } else {
             this.changeTurn();
           }
