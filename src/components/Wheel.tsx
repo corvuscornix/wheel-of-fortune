@@ -172,6 +172,7 @@ export const Wheel: React.FunctionComponent = observer(props => {
         </div>
         <SpinButton
           disabled={
+            store.isOnlyVocalsLeft ||
             store.isSpinning ||
             !store.players.length ||
             store.spinResult !== null

@@ -23,12 +23,14 @@ const LetterTile: FunctionComponent<LetterTileProps> = props => {
   const isEmpty = character === ' ';
   let background = 'blue';
 
-  if (unlocked) {
-    background = 'white';
-  } else if (highlighted) {
-    background = 'yellow';
-  } else if (!isEmpty) {
-    background = 'lightgray';
+  if (!isEmpty) {
+    if (unlocked) {
+      background = 'white';
+    } else if (highlighted) {
+      background = 'yellow';
+    } else {
+      background = 'lightgray';
+    }
   }
 
   return (

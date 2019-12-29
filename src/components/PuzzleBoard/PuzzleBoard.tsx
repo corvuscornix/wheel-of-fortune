@@ -15,7 +15,13 @@ const Container = styled.div`
 
 export const PuzzleBoard: React.FunctionComponent = observer(() => {
   const store = useStore();
-  const { puzzle, unlockedLetters, solvingIndex, solveSentence } = store;
+  const {
+    puzzle,
+    unlockedLetters,
+    solvingIndex,
+    solveSentence,
+    isGameOver
+  } = store;
 
   let puzzleRows: string[] = [];
   let row = '';
@@ -34,12 +40,12 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
   puzzleRows.push(row);
 
   // Shift rows down one row if maximum three rows of text
-  if (puzzleRows.length > 3) {
+  if (puzzleRows.length < 3) {
     puzzleRows = [' '.repeat(GRID_ROW_LENGTH), ...puzzleRows];
   }
 
-  // Add fourth row if doesn't exist already
-  if (puzzleRows.length < 4) {
+  // Add rows until we have 4 rows
+  while (puzzleRows.length < 4) {
     puzzleRows = [...puzzleRows, ' '.repeat(GRID_ROW_LENGTH)];
   }
 
@@ -61,7 +67,8 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
     <Container>
       {puzzleRows.map(row =>
         row.split('').map((letter, index) => {
-          const useSolveAttemptLetter = letter !== ' ' && solvingIndex !== null;
+          const isNotEmpty = letter !== ' ';
+          const useSolveAttemptLetter = isNotEmpty && solvingIndex !== null;
           let thisLetterIndex = useSolveAttemptLetter
             ? letterIndex++
             : Infinity;
@@ -71,6 +78,7 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
               key={index}
               unlocked={
                 unlockedLetters.has(letter as Letter) ||
+                isGameOver ||
                 (useSolveAttemptLetter &&
                   solvingIndex !== null &&
                   thisLetterIndex < solvingIndex)

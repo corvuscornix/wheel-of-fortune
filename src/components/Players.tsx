@@ -8,6 +8,7 @@ const Container = styled.div`
   background-color: #070799;
   color: white;
   padding-left: 16px;
+  flex-grow: 2;
 `;
 
 const RemoveButton = styled.button`

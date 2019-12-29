@@ -1,5 +1,4 @@
 import { observable } from 'mobx';
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<
   infer ElementType
@@ -66,6 +65,7 @@ export type TStore = {
   consonantOptions: Set<Consonant>;
   vocalOptions: Set<Vocal>;
   unlockedLetters: Set<Letter>;
+  isOnlyVocalsLeft: boolean;
   isSpinning: boolean;
   spinResult: Sector | null;
   players: Player[];
@@ -77,13 +77,16 @@ export type TStore = {
   solvingIndex: number | null;
   solveSentence: Letter[] | null;
   canSolve: boolean;
+  isSolving: boolean;
   _userIndex: number;
+  isGameOver: boolean;
   addPlayer(name: string): void;
   removePlayer(name: string): void;
   changeTurn(): void;
   attemptLetter(letter: Letter): void;
   handleSpinResult(sector: Sector): void;
   attemptSolve(): void;
+  startNewRound(): void;
 };
 
 function getSolvingIndex({
@@ -123,6 +126,7 @@ export const createStore = (): TStore => {
     announcementText: 'Welcome to Wheel of Fortune!',
     solvingIndex: null,
     solveSentence: null,
+    isGameOver: false,
 
     addPlayer(name: string): void {
       this.players.push(new Player(name));
@@ -186,11 +190,12 @@ export const createStore = (): TStore => {
         this.solveSentence[this.solvingIndex] = letter;
         this.solvingIndex = getSolvingIndex(this);
 
-        // Last letter of solve attempt was entered, check whether the attempt is
+        // Last letter of solve attempt was entered, check whether the attempt is correct or failed
         if (this.solvingIndex === null) {
           if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
-            this.announcementText = `Player ${this.currentPlayer.name} has won the round!`;
+            this.announcementText = `Player ${this.currentPlayer.name} has won the round and gained ${this.currentPlayer.points} points!`;
             this.currentPlayer.totalPoints += this.currentPlayer.points;
+            this.isGameOver = true;
           } else {
             this.changeTurn();
           }
@@ -205,12 +210,13 @@ export const createStore = (): TStore => {
         this.currentPlayer.points -= BUY_VOCAL_PRICE;
       }
 
-      if (
+      if (this.spinResult !== null && typeof this.spinResult !== 'number') {
+        this.changeTurn();
+      } else if (
         this.puzzle.indexOf(letter) > -1 &&
-        !this.unlockedLetters.has(letter) &&
-        typeof this.spinResult === 'number'
+        !this.unlockedLetters.has(letter)
       ) {
-        if (!isVocal) {
+        if (!isVocal && this.spinResult) {
           this.currentPlayer.points += this.spinResult;
         }
 
@@ -219,8 +225,6 @@ export const createStore = (): TStore => {
         this.announcementText = `Letter '${letter}' appears ${
           (this.puzzle.match(new RegExp(letter, 'g')) || []).length
         } times! Spin again or try to solve.`;
-      } else {
-        this.changeTurn();
       }
 
       this.unlockedLetters.add(letter);
@@ -231,6 +235,13 @@ export const createStore = (): TStore => {
       this.solvingIndex = getSolvingIndex(this);
     },
 
+    startNewRound(): void {
+      let sentence = prompt('Enter sentence for new round') || '';
+      this.puzzle = sentence.trim().toUpperCase();
+      this.unlockedLetters.clear();
+      this.isGameOver = false;
+    },
+
     get isVocalAvailable(): boolean {
       if (this.currentPlayer === null)
         throw new Error(
@@ -238,18 +249,38 @@ export const createStore = (): TStore => {
         );
 
       return (
-        (this.spinResult !== null &&
+        (this.spinResult === null &&
           this.currentPlayer.points >= BUY_VOCAL_PRICE) ||
         this.solvingIndex !== null
       );
     },
 
     get isConsonantAvailable(): boolean {
-      return this.spinResult !== null || this.solvingIndex !== null;
+      return (
+        !this.isOnlyVocalsLeft &&
+        (this.spinResult !== null || this.solvingIndex !== null)
+      );
     },
 
     get canSolve(): boolean {
-      return this.spinResult === null;
+      return this.spinResult === null && !this.isGameOver;
+    },
+
+    get isSolving(): boolean {
+      return this.solvingIndex !== null;
+    },
+
+    get isOnlyVocalsLeft(): boolean {
+      for (let letter of this.puzzle) {
+        if (
+          this.consonantOptions.has(letter as Consonant) &&
+          !this.unlockedLetters.has(letter as Consonant)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
     }
   };
 };

@@ -1,5 +1,5 @@
 import './App.css';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, FormEvent } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './store/store';
@@ -41,18 +41,22 @@ const App: FunctionComponent = observer(() => {
     <Container>
       <AppMain>
         <FlexRow>
-          <FlexRow>
+          <FlexColumn>
             <Players />
-          </FlexRow>
+            <button onClick={store.startNewRound}>New round</button>
+          </FlexColumn>
           <FlexColumn grow="2">
             <PuzzleBoard />
             <AnnouncementText>{store.announcementText}</AnnouncementText>
-            {store.canSolve && (
+            {store.canSolve && !store.isSolving && (
               <button onClick={store.attemptSolve}>Solve</button>
             )}
-            {(store.isConsonantAvailable || store.solvingIndex !== null) && (
-              <LetterPanel />
+            {store.isSolving && (
+              <button onClick={store.changeTurn}>Give up</button>
             )}
+            {(store.isConsonantAvailable ||
+              store.isVocalAvailable ||
+              store.solvingIndex !== null) && <LetterPanel />}
             <Wheel />
           </FlexColumn>
         </FlexRow>
