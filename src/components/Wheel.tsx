@@ -172,7 +172,7 @@ export const Wheel: React.FunctionComponent = observer(props => {
         </div>
         <SpinButton
           disabled={
-            store.isSpinning || !store.players.length || !!store.spinResult
+            store.isSpinning || !store.players.length || store.spinResult !== null
           }
           onClick={spin}
         >

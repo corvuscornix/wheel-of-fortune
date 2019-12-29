@@ -34,7 +34,6 @@ const AnnouncementText = styled.div`
 
 const App: FunctionComponent = observer(() => {
   const store = useStore();
-  const { puzzle, unlockedLetters } = store;
 
   return (
     <AppContainer>
@@ -44,9 +43,14 @@ const App: FunctionComponent = observer(() => {
             <Players />
           </FlexRow>
           <FlexColumn grow="2">
-            <PuzzleBoard puzzle={puzzle} unlockedLetters={unlockedLetters} />
+            <PuzzleBoard />
             <AnnouncementText>{store.announcementText}</AnnouncementText>
-            {store.isConsonantAvailable && <LetterPanel />}
+            {store.canSolve && (
+              <button onClick={store.attemptSolve}>Solve</button>
+            )}
+            {(store.isConsonantAvailable || store.solvingIndex !== null) && (
+              <LetterPanel />
+            )}
             <Wheel />
           </FlexColumn>
         </FlexRow>

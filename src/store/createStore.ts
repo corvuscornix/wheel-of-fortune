@@ -1,4 +1,5 @@
 import { observable } from 'mobx';
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<
   infer ElementType
@@ -69,17 +70,44 @@ export type TStore = {
   spinResult: Sector | null;
   players: Player[];
   currentPlayer: Player | null;
-  addPlayer(name: string): void;
-  removePlayer(name: string): void;
-  changeTurn(): void;
   editingPlayers: boolean;
-  attemptLetter(letter: Letter): void;
-  handleSpinResult(sector: Sector): void;
   isVocalAvailable: boolean;
   isConsonantAvailable: boolean;
   announcementText: string;
+  solvingIndex: number | null;
+  solveSentence: Letter[] | null;
+  canSolve: boolean;
   _userIndex: number;
+  addPlayer(name: string): void;
+  removePlayer(name: string): void;
+  changeTurn(): void;
+  attemptLetter(letter: Letter): void;
+  handleSpinResult(sector: Sector): void;
+  attemptSolve(): void;
 };
+
+function getSolvingIndex({
+  solveSentence,
+  solvingIndex,
+  unlockedLetters
+}: TStore): number | null {
+  if (!solveSentence) {
+    throw Error('Cannot get solving index when solving sentence is null');
+  }
+
+  for (
+    let i = solvingIndex !== null ? solvingIndex + 1 : 0;
+    i < solveSentence.length;
+    i++
+  ) {
+    const letter = solveSentence[i];
+    if (!unlockedLetters.has(letter as Letter)) {
+      return i;
+    }
+  }
+
+  return null;
+}
 
 export const createStore = (): TStore => {
   return {
@@ -93,6 +121,8 @@ export const createStore = (): TStore => {
     editingPlayers: false,
     _userIndex: 0,
     announcementText: 'Welcome to Wheel of Fortune!',
+    solvingIndex: null,
+    solveSentence: null,
 
     addPlayer(name: string): void {
       this.players.push(new Player(name));
@@ -110,7 +140,9 @@ export const createStore = (): TStore => {
       this.isSpinning = false;
 
       if (this.currentPlayer === null)
-        throw new Error('Current player shouldnt be null');
+        throw new Error(
+          'currentPlayer state shouldnt be null when handleSpinResult is called'
+        );
       switch (result) {
         case Sector.BANKRUPT:
           this.currentPlayer.points = 0;
@@ -121,21 +153,51 @@ export const createStore = (): TStore => {
           break;
         default:
           this.spinResult = result;
-          this.announcementText = `${this.currentPlayer.name}, choose a letter. Vocals cost 250 points.`;
+          this.announcementText = `${
+            this.currentPlayer.name
+          }, you span ${this.spinResult.toString()}! Choose a letter. Vocals cost 250 points.`;
       }
     },
 
     changeTurn(): void {
       if (this.currentPlayer === null)
-        throw new Error("Current player shouldn't be null");
+        throw new Error(
+          "currentPlayer state shouldn't be null when changeTurn is called"
+        );
       this._userIndex++;
       this.spinResult = null;
+      this.solveSentence = null;
+      this.solvingIndex = null;
       this.announcementText = `${this.currentPlayer.name}'s turn!`;
     },
 
+    /**
+     * Used in normal and solve attempts
+     * @param letter
+     */
     attemptLetter(letter: Letter): void {
-      if (this.currentPlayer === null)
-        throw new Error("Current player shouldn't be null");
+      if (this.currentPlayer === null) {
+        throw new Error(
+          "currentPlayer state shouldn't be null during letter attempt"
+        );
+      }
+
+      if (this.solvingIndex !== null && this.solveSentence !== null) {
+        this.solveSentence[this.solvingIndex] = letter;
+        this.solvingIndex = getSolvingIndex(this);
+
+        // Last letter of solve attempt was entered, check whether the attempt is
+        if (this.solvingIndex === null) {
+          if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
+            this.announcementText = `Player ${this.currentPlayer.name} has won the game!`;
+          } else {
+            this.changeTurn();
+          }
+
+          this.solveSentence = null;
+        }
+        return;
+      }
 
       const isVocal = vocals.indexOf(letter as Vocal) > -1;
       if (isVocal) {
@@ -152,6 +214,10 @@ export const createStore = (): TStore => {
         }
 
         this.spinResult = null;
+
+        this.announcementText = `Letter '${letter}' appears ${
+          (this.puzzle.match(new RegExp(letter, 'g')) || []).length
+        } times! Spin again or try to solve.`;
       } else {
         this.changeTurn();
       }
@@ -159,20 +225,30 @@ export const createStore = (): TStore => {
       this.unlockedLetters.add(letter);
     },
 
+    attemptSolve(): void {
+      this.solveSentence = this.puzzle.replace(/\s/g, '').split('') as Letter[];
+      this.solvingIndex = getSolvingIndex(this);
+    },
+
     get isVocalAvailable(): boolean {
       if (this.currentPlayer === null)
-        throw new Error("Current player shouldn't be null");
+        throw new Error(
+          "currentPlayer state shouldn't be null when isVocalAvailable is called"
+        );
 
       return (
-        this.spinResult !== null &&
-        this.players.length > 0 &&
-        this.currentPlayer.points >= BUY_VOCAL_PRICE &&
-        !this.isSpinning
+        (this.spinResult !== null &&
+          this.currentPlayer.points >= BUY_VOCAL_PRICE) ||
+        this.solvingIndex !== null
       );
     },
 
     get isConsonantAvailable(): boolean {
-      return this.spinResult !== null;
+      return this.spinResult !== null || this.solvingIndex !== null;
+    },
+
+    get canSolve(): boolean {
+      return this.spinResult === null;
     }
   };
 };

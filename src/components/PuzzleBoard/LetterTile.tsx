@@ -1,9 +1,11 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
+import { Letter } from '../../store/createStore';
 
 interface LetterTileProps {
-  character: string; // Should be character type
+  character: Letter | ' ';
   unlocked: boolean;
+  highlighted: boolean;
 }
 
 const LetterTileElement = styled.div<{ background: string }>`
@@ -17,12 +19,14 @@ const LetterTileElement = styled.div<{ background: string }>`
 `;
 
 const LetterTile: FunctionComponent<LetterTileProps> = props => {
-  const { character, unlocked } = props;
+  const { character, unlocked, highlighted } = props;
   const isEmpty = character === ' ';
   let background = 'blue';
 
   if (unlocked) {
     background = 'white';
+  } else if (highlighted) {
+    background = 'yellow';
   } else if (!isEmpty) {
     background = 'lightgray';
   }
