@@ -36,7 +36,6 @@ const AnnouncementText = styled.div`
 
 const App: FunctionComponent = observer(() => {
   const store = useStore();
-
   return (
     <Container>
       <AppMain>
@@ -51,13 +50,23 @@ const App: FunctionComponent = observer(() => {
             {store.canSolve && !store.isSolving && (
               <button onClick={store.attemptSolve}>Solve</button>
             )}
-            {store.isSolving && (
-              <button onClick={store.changeTurn}>Give up</button>
-            )}
             {(store.isConsonantAvailable ||
               store.isVocalAvailable ||
               store.solvingIndex !== null) && <LetterPanel />}
             <Wheel />
+            {!store.isSpinning && (
+              <button
+                onClick={() =>
+                  store.changeTurn(
+                    `${
+                      store.currentPlayer ? store.currentPlayer.name : ''
+                    } skipped.`
+                  )
+                }
+              >
+                Skip turn
+              </button>
+            )}
           </FlexColumn>
         </FlexRow>
       </AppMain>

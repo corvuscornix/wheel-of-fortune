@@ -3,6 +3,7 @@ import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
 import { CenterAlign } from './layout';
+import { Letter } from '../store/createStore';
 
 const ContainerDiv = styled.div`
   width: 100%;
@@ -20,6 +21,11 @@ const LetterButton = styled.button<{ vocal?: boolean }>`
   }
 `;
 
+const HiddenKeyboardInputForSolveAttempt = styled.input`
+  position: fixed;
+  left: -99999px;
+`;
+
 export const LetterPanel: FunctionComponent = observer(() => {
   const store = useStore();
   const {
@@ -28,7 +34,8 @@ export const LetterPanel: FunctionComponent = observer(() => {
     vocalOptions,
     isVocalAvailable,
     isConsonantAvailable,
-    attemptLetter
+    attemptLetter,
+    isSolving
   } = store;
 
   return (
@@ -58,6 +65,16 @@ export const LetterPanel: FunctionComponent = observer(() => {
           ))}
         </div>
       </ContainerDiv>
+      {isSolving && (
+        <HiddenKeyboardInputForSolveAttempt
+          autoFocus
+          onInput={(e: React.FormEvent<HTMLInputElement>): void => {
+            attemptLetter(e.currentTarget.value[0] as Letter);
+            e.currentTarget.value = '';
+            e.preventDefault();
+          }}
+        />
+      )}
     </CenterAlign>
   );
 });

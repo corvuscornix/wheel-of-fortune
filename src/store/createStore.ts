@@ -72,6 +72,7 @@ export type TStore = {
   currentPlayer: Player | null;
   editingPlayers: boolean;
   isVocalAvailable: boolean;
+  isVocalBought: boolean;
   isConsonantAvailable: boolean;
   announcementText: string;
   solvingIndex: number | null;
@@ -82,11 +83,12 @@ export type TStore = {
   isGameOver: boolean;
   addPlayer(name: string): void;
   removePlayer(name: string): void;
-  changeTurn(): void;
+  changeTurn(reason: string): void;
   attemptLetter(letter: Letter): void;
   handleSpinResult(sector: Sector): void;
   attemptSolve(): void;
   startNewRound(): void;
+  turnTimeLimit: number;
 };
 
 function getSolvingIndex({
@@ -112,6 +114,8 @@ function getSolvingIndex({
   return null;
 }
 
+let _turnTimeoutId: number;
+
 export const createStore = (): TStore => {
   return {
     puzzle: 'Welcome to Wheel of Fortune'.toUpperCase(),
@@ -127,6 +131,8 @@ export const createStore = (): TStore => {
     solvingIndex: null,
     solveSentence: null,
     isGameOver: false,
+    turnTimeLimit: 5,
+    isVocalBought: false,
 
     addPlayer(name: string): void {
       this.players.push(new Player(name));
@@ -150,20 +156,22 @@ export const createStore = (): TStore => {
       switch (result) {
         case Sector.BANKRUPT:
           this.currentPlayer.points = 0;
-          this.changeTurn();
+          this.changeTurn(
+            `Oh noooo, ${this.currentPlayer.name} went bankrupt!`
+          );
           break;
         case Sector.LOSE_A_TURN:
-          this.changeTurn();
+          this.changeTurn(`${this.currentPlayer.name} spun and lost the turn.`);
           break;
         default:
           this.spinResult = result;
           this.announcementText = `${
             this.currentPlayer.name
-          }, you span ${this.spinResult.toString()}! Choose a letter. Vocals cost 250 points.`;
+          }, you spun ${this.spinResult.toString()}! Choose a consonant.`;
       }
     },
 
-    changeTurn(): void {
+    changeTurn(reason: string): void {
       if (this.currentPlayer === null)
         throw new Error(
           "currentPlayer state shouldn't be null when changeTurn is called"
@@ -172,7 +180,23 @@ export const createStore = (): TStore => {
       this.spinResult = null;
       this.solveSentence = null;
       this.solvingIndex = null;
-      this.announcementText = `${this.currentPlayer.name}'s turn!`;
+      this.isVocalBought = false;
+      this.announcementText = `${reason} Now it's ${
+        this.currentPlayer.name
+      }'s turn! Spin ${
+        this.isVocalAvailable
+          ? ', solve or buy a vocal for 250 points'
+          : ' or solve'
+      }.`;
+
+      /*clearTimeout(_turnTimeoutId);
+      _turnTimeoutId = setTimeout(() => {
+        if (!this.currentPlayer) return;
+        alert(
+          `${this.currentPlayer.name}'s turn took too long (${this.turnTimeLimit} seconds) and turn is changed to the next player.`
+        );
+        this.changeTurn();
+      }, this.turnTimeLimit);*/
     },
 
     /**
@@ -180,6 +204,7 @@ export const createStore = (): TStore => {
      * @param letter
      */
     attemptLetter(letter: Letter): void {
+      letter = letter.toUpperCase() as Letter;
       if (this.currentPlayer === null) {
         throw new Error(
           "currentPlayer state shouldn't be null during letter attempt"
@@ -193,11 +218,13 @@ export const createStore = (): TStore => {
         // Last letter of solve attempt was entered, check whether the attempt is correct or failed
         if (this.solvingIndex === null) {
           if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
-            this.announcementText = `Player ${this.currentPlayer.name} has won the round and gained ${this.currentPlayer.points} points!`;
+            this.announcementText = `Correct! ${this.currentPlayer.name} won the round and gained ${this.currentPlayer.points} points!`;
             this.currentPlayer.totalPoints += this.currentPlayer.points;
             this.isGameOver = true;
           } else {
-            this.changeTurn();
+            this.changeTurn(
+              `Good attempt but that was wrong, ${this.currentPlayer.name}..`
+            );
           }
 
           this.solveSentence = null;
@@ -205,18 +232,19 @@ export const createStore = (): TStore => {
         return;
       }
 
-      const isVocal = vocals.indexOf(letter as Vocal) > -1;
-      if (isVocal) {
+      if (vocals.indexOf(letter as Vocal) > -1) {
         this.currentPlayer.points -= BUY_VOCAL_PRICE;
+        this.isVocalBought = true;
+      } else {
+        this.isVocalBought = false;
       }
 
-      if (this.spinResult !== null && typeof this.spinResult !== 'number') {
-        this.changeTurn();
-      } else if (
+      if (
+        // Check if puzzle sentence contains the attempted letter and is not unlocket yet
         this.puzzle.indexOf(letter) > -1 &&
         !this.unlockedLetters.has(letter)
       ) {
-        if (!isVocal && this.spinResult) {
+        if (typeof this.spinResult === 'number') {
           this.currentPlayer.points += this.spinResult;
         }
 
@@ -224,7 +252,13 @@ export const createStore = (): TStore => {
 
         this.announcementText = `Letter '${letter}' appears ${
           (this.puzzle.match(new RegExp(letter, 'g')) || []).length
-        } times! Spin again or try to solve.`;
+        } times! Spin again${
+          this.isVocalAvailable
+            ? ', solve or buy a vocal for 250 points'
+            : ' or solve'
+        }.`;
+      } else {
+        this.changeTurn(`Letter '${letter}' doesn't appear in the sentence.`);
       }
 
       this.unlockedLetters.add(letter);
@@ -250,6 +284,8 @@ export const createStore = (): TStore => {
 
       return (
         (this.spinResult === null &&
+          !this.isSpinning &&
+          !this.isVocalBought &&
           this.currentPlayer.points >= BUY_VOCAL_PRICE) ||
         this.solvingIndex !== null
       );
@@ -258,12 +294,13 @@ export const createStore = (): TStore => {
     get isConsonantAvailable(): boolean {
       return (
         !this.isOnlyVocalsLeft &&
+        !this.isSpinning &&
         (this.spinResult !== null || this.solvingIndex !== null)
       );
     },
 
     get canSolve(): boolean {
-      return this.spinResult === null && !this.isGameOver;
+      return !this.isSpinning && this.spinResult === null && !this.isGameOver;
     },
 
     get isSolving(): boolean {
