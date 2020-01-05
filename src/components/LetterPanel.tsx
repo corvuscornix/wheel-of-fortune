@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './../store/store';
-import { CenterAlign } from './layout';
+import { CenterAlign, Panel } from './layout';
 import { Letter } from '../store/createStore';
 
 const ContainerDiv = styled.div`
@@ -17,7 +17,7 @@ const LetterButton = styled.button<{ vocal?: boolean }>`
   ${props => props.vocal && 'background: yellow;'};
 
   :disabled {
-    background: lightgray;
+    opacity: 0.3;
   }
 `;
 
@@ -39,7 +39,7 @@ export const LetterPanel: FunctionComponent = observer(() => {
   } = store;
 
   return (
-    <CenterAlign>
+    <Panel height="auto">
       <ContainerDiv>
         <div>
           {Array.from(vocalOptions).map(letter => (
@@ -75,6 +75,6 @@ export const LetterPanel: FunctionComponent = observer(() => {
           }}
         />
       )}
-    </CenterAlign>
+    </Panel>
   );
 });

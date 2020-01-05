@@ -218,8 +218,11 @@ export const createStore = (): TStore => {
         // Last letter of solve attempt was entered, check whether the attempt is correct or failed
         if (this.solvingIndex === null) {
           if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
-            this.announcementText = `Correct! ${this.currentPlayer.name} won the round and gained ${this.currentPlayer.points} points!`;
+            this.announcementText = `Correct! ${this.currentPlayer.name} won the round and gained ${this.currentPlayer.points} points! Shall we play another round?`;
             this.currentPlayer.totalPoints += this.currentPlayer.points;
+            for (let player of this.players) {
+              player.points = 0;
+            }
             this.isGameOver = true;
           } else {
             this.changeTurn(

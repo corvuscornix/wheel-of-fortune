@@ -1,76 +1,64 @@
 import './App.css';
-import React, { FunctionComponent, FormEvent } from 'react';
+import React, { FunctionComponent } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './store/store';
 import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
-import { FlexColumn, FlexRow } from './components/layout';
-
-const Container = styled.div`
-  margin: auto;
-  height: 100%;
-`;
-
-const AppHeader = styled.header`
-  background-color: #070799;
-  padding: 20px;
-  display: flex;
-  color: white;
-`;
-
-const AppTitle = styled.span`
-  font-size: 1.5em;
-  flex-grow: 2;
-`;
+import { FlexColumn, FlexRow, Panel } from './components/layout';
 
 const AppMain = styled.main`
   max-width: 1000px;
   height: 100%;
+  margin: auto;
+  background: ;
 `;
 
 const AnnouncementText = styled.div`
   text-align: center;
   font-size: 16px;
   padding: 8px;
+  color: white;
 `;
 
 const App: FunctionComponent = observer(() => {
   const store = useStore();
   return (
-    <Container>
-      <AppMain>
-        <FlexRow>
+    <AppMain>
+      <FlexColumn>
+        <AnnouncementText>{store.announcementText}</AnnouncementText>
+        <PuzzleBoard />
+        <LetterPanel />
+        <FlexRow grow="2">
+          <FlexColumn grow="2">
+            <FlexRow grow="2">
+              <Wheel />
+            </FlexRow>
+          </FlexColumn>
           <FlexColumn>
+            <Panel height="auto">
+              {store.canSolve && !store.isSolving && (
+                <button onClick={store.attemptSolve}>Solve</button>
+              )}
+              {!store.isSpinning && (
+                <button
+                  onClick={() =>
+                    store.changeTurn(
+                      `${
+                        store.currentPlayer ? store.currentPlayer.name : ''
+                      } skipped.`
+                    )
+                  }
+                >
+                  Skip turn
+                </button>
+              )}
+            </Panel>
             <Players />
             <button onClick={store.startNewRound}>New round</button>
           </FlexColumn>
-          <FlexColumn grow="2">
-            <PuzzleBoard />
-            <AnnouncementText>{store.announcementText}</AnnouncementText>
-            {store.canSolve && !store.isSolving && (
-              <button onClick={store.attemptSolve}>Solve</button>
-            )}
-            {(store.isConsonantAvailable ||
-              store.isVocalAvailable ||
-              store.solvingIndex !== null) && <LetterPanel />}
-            <Wheel />
-            {!store.isSpinning && (
-              <button
-                onClick={() =>
-                  store.changeTurn(
-                    `${
-                      store.currentPlayer ? store.currentPlayer.name : ''
-                    } skipped.`
-                  )
-                }
-              >
-                Skip turn
-              </button>
-            )}
-          </FlexColumn>
         </FlexRow>
-      </AppMain>
-    </Container>
+      </FlexColumn>
+    </AppMain>
   );
 });
 
