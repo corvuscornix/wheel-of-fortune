@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components/macro';
-import { Letter } from '../../store/createStore';
+import { Letter } from '../../store/types';
 
 interface LetterTileProps {
   character: Letter | ' ';

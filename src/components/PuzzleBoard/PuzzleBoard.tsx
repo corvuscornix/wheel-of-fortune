@@ -2,8 +2,8 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components/macro';
 import LetterTile from './LetterTile';
-import { Letter } from '../../store/createStore';
-import { useStore } from './../../store/store';
+import { useStore } from '../../store/createStore';
+import { Letter } from '../../store/types';
 
 export const GRID_ROW_LENGTH = 14;
 
@@ -60,8 +60,6 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
   });
 
   let letterIndex = 0;
-
-  console.log(puzzleRows);
 
   return (
     <Container>

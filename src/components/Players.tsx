@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import { useStore } from './../store/store';
+import { useStore } from '../store/createStore';
 import { observer } from 'mobx-react';
 
 const Container = styled.div`

@@ -1,10 +1,10 @@
 import styled from 'styled-components/macro';
 import React, { createRef } from 'react';
 import { observer } from 'mobx-react';
-import { useStore } from './../store/store';
+import { useStore } from '../store/createStore';
 import { CenterAlign } from './layout';
-import { Sector } from '../store/createStore';
 import { useState } from 'react';
+import { Sector } from '../store/types';
 
 const MIN_SPIN_AMOUNT = 540;
 const MAX_SPIN_AMOUNT = 900;
@@ -152,15 +152,7 @@ export const Wheel: React.FunctionComponent = observer(() => {
           />
           <Arrow />
         </div>
-        <SpinButton
-          disabled={
-            store.isOnlyVocalsLeft ||
-            store.isSpinning ||
-            !store.players.length ||
-            store.spinResult !== null
-          }
-          onClick={spin}
-        >
+        <SpinButton disabled={!store.canSpin} onClick={spin}>
           Spin
         </SpinButton>
       </Container>

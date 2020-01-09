@@ -2,7 +2,7 @@ import './App.css';
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
-import { useStore } from './store/store';
+import { useStore } from './store/createStore';
 import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
 import { FlexColumn, FlexRow, Panel } from './components/layout';
 

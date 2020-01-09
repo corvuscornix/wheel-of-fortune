@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
-import { useStore } from './../store/store';
+import { useStore } from '../store/createStore';
 import { CenterAlign, Panel } from './layout';
-import { Letter } from '../store/createStore';
+import { Letter } from '../store/types';
 
 const ContainerDiv = styled.div`
   width: 100%;
