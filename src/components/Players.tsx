@@ -61,7 +61,7 @@ export const Players: React.FunctionComponent<{}> = observer(() => {
           onKeyDown={handlePlayerInput}
         />
       )}
-      <button onClick={() => (store.editingPlayers = !store.editingPlayers)}>
+      <button onClick={store.editPlayersToggle}>
         {store.editingPlayers ? 'Done' : 'Edit players'}
       </button>
     </Container>

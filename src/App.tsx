@@ -23,7 +23,7 @@ const RemainingTime = styled.div<{ timeLow: boolean }>`
   margin-bottom: 16px;
   ${props =>
     props.timeLow
-      ? `color: red;
+      ? `color: #ff5722;
     font-weight: bold;
     `
       : `color: white;

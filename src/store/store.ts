@@ -35,8 +35,6 @@ function getSolvingIndex({
   return null;
 }
 
-let _turnTimeoutId: number;
-
 export class Store {
   @observable puzzle: string = '';
   @observable consonantOptions: Set<Consonant>;
@@ -55,13 +53,13 @@ export class Store {
   @observable remainingTime: number = 0;
 
   _userIndex: number = 0;
+  _turnTimeoutId: number = -1;
 
   constructor(puzzle: string) {
     this.puzzle = puzzle.toUpperCase();
     this.consonantOptions = new Set<Consonant>(consonants);
     this.unlockedLetters = new Set<Letter>();
     this.players = [new Player('Antero'), new Player('Amal')];
-    this.remainingTime = this.reactionTimeLimit;
     this.startTurn();
   }
 
@@ -75,14 +73,10 @@ export class Store {
     this.players = this.players.filter(player => player.name !== name);
   };
 
-  get currentPlayer(): Player {
-    return this.players[this._userIndex % this.players.length];
-  }
-
   @action
   spin = (): void => {
     this.isSpinning = true;
-    clearInterval(_turnTimeoutId);
+    this.clearTicking();
     this.remainingTime = -1;
   };
 
@@ -108,8 +102,8 @@ export class Store {
           this.currentPlayer.name
         }, you spun ${this.spinResult.toString()}! Choose a consonant.`;
         this.remainingTime = this.reactionTimeLimit;
-        clearInterval(_turnTimeoutId);
-        _turnTimeoutId = setInterval(this.tickInterval, 1000);
+        this.clearTicking();
+        this.startTicking();
     }
   };
 
@@ -138,17 +132,18 @@ export class Store {
     this.isVocalBought = false;
     this.remainingTime = this.reactionTimeLimit;
 
-    clearInterval(_turnTimeoutId);
-    _turnTimeoutId = setInterval(this.tickInterval, 1000);
+    this.clearTicking();
+    this.startTicking();
   };
 
   @action
   tickInterval = (): void => {
     if (!this.currentPlayer) return;
     this.remainingTime = this.remainingTime - 1;
+    console.log(this.remainingTime);
 
     if (this.remainingTime < 0) {
-      clearInterval(_turnTimeoutId);
+      this.clearTicking();
       const message = `${this.currentPlayer.name}'s turn took too long (${this.reactionTimeLimit} seconds) so turn is changed to the next player.`;
       // Show an alert to catch attention for now until a better design has been implemented
       alert(message);
@@ -230,7 +225,17 @@ export class Store {
   attemptSolve = (): void => {
     this.solveSentence = this.puzzle.replace(/\s/g, '').split('') as Letter[];
     this.solvingIndex = getSolvingIndex(this);
-    clearInterval(_turnTimeoutId);
+  };
+
+  @action
+  startTicking = (): void => {
+    this.remainingTime = this.reactionTimeLimit;
+    this._turnTimeoutId = setInterval(this.tickInterval, 1000);
+  };
+
+  @action
+  clearTicking = (): void => {
+    clearInterval(this._turnTimeoutId);
     this.remainingTime = -1;
   };
 
@@ -242,6 +247,21 @@ export class Store {
     this.isGameOver = false;
     this.startTurn();
   };
+
+  @action
+  editPlayersToggle = (): void => {
+    this.editingPlayers = !this.editingPlayers;
+    if (this.editingPlayers) {
+      this.clearTicking();
+    } else {
+      this.startTurn();
+    }
+  };
+
+  @computed
+  get currentPlayer(): Player {
+    return this.players[this._userIndex % this.players.length];
+  }
 
   @computed
   get isVocalAvailable(): boolean {
