@@ -130,7 +130,7 @@ export const Wheel: React.FunctionComponent = observer(() => {
   });
 
   const spin = () => {
-    store.isSpinning = true;
+    store.spin();
     const randomSpinAmount = MIN_SPIN_AMOUNT + Math.random() * MAX_SPIN_AMOUNT;
     const spinTime = (randomSpinAmount / 360) * 1000;
     const cumulativeSpinAmount = rotation + randomSpinAmount;

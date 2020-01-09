@@ -10,7 +10,6 @@ const AppMain = styled.main`
   max-width: 1000px;
   height: 100%;
   margin: auto;
-  background: ;
 `;
 
 const AnnouncementText = styled.div`
@@ -18,6 +17,17 @@ const AnnouncementText = styled.div`
   font-size: 16px;
   padding: 8px;
   color: white;
+`;
+
+const RemainingTime = styled.div<{ timeLow: boolean }>`
+  margin-bottom: 16px;
+  ${props =>
+    props.timeLow
+      ? `color: red;
+    font-weight: bold;
+    `
+      : `color: white;
+    `}
 `;
 
 const App: FunctionComponent = observer(() => {
@@ -54,6 +64,11 @@ const App: FunctionComponent = observer(() => {
               )}
             </Panel>
             <Players />
+            <RemainingTime timeLow={store.remainingTime < 5}>
+              {store.isTimeTicking
+                ? `Thinking time left: ${store.remainingTime} sec`
+                : null}
+            </RemainingTime>
             <button onClick={store.startNewRound}>New round</button>
           </FlexColumn>
         </FlexRow>

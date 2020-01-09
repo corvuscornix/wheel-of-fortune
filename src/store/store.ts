@@ -12,6 +12,31 @@ export class Player {
   }
 }
 
+function getSolvingIndex({
+  solveSentence,
+  solvingIndex,
+  unlockedLetters
+}: Store): number | null {
+  if (!solveSentence) {
+    throw Error('Cannot get solving index when solving sentence is null');
+  }
+
+  for (
+    let i = solvingIndex !== null ? solvingIndex + 1 : 0;
+    i < solveSentence.length;
+    i++
+  ) {
+    const letter = solveSentence[i];
+    if (!unlockedLetters.has(letter as Letter)) {
+      return i;
+    }
+  }
+
+  return null;
+}
+
+let _turnTimeoutId: number;
+
 export class Store {
   @observable puzzle: string = '';
   @observable consonantOptions: Set<Consonant>;
@@ -25,8 +50,9 @@ export class Store {
   @observable solvingIndex: number | null = null;
   @observable solveSentence: Letter[] | null = null;
   @observable isGameOver: boolean = false;
-  @observable turnTimeLimit: number = 5;
+  @observable reactionTimeLimit: number = 10;
   @observable isVocalBought: boolean = false;
+  @observable remainingTime: number = 0;
 
   _userIndex: number = 0;
 
@@ -35,6 +61,8 @@ export class Store {
     this.consonantOptions = new Set<Consonant>(consonants);
     this.unlockedLetters = new Set<Letter>();
     this.players = [new Player('Antero'), new Player('Amal')];
+    this.remainingTime = this.reactionTimeLimit;
+    this.startTurn();
   }
 
   @action
@@ -50,6 +78,13 @@ export class Store {
   get currentPlayer(): Player {
     return this.players[this._userIndex % this.players.length];
   }
+
+  @action
+  spin = (): void => {
+    this.isSpinning = true;
+    clearInterval(_turnTimeoutId);
+    this.remainingTime = -1;
+  };
 
   @action
   handleSpinResult = (result: Sector): void => {
@@ -72,20 +107,19 @@ export class Store {
         this.announcementText = `${
           this.currentPlayer.name
         }, you spun ${this.spinResult.toString()}! Choose a consonant.`;
+        this.remainingTime = this.reactionTimeLimit;
+        clearInterval(_turnTimeoutId);
+        _turnTimeoutId = setInterval(this.tickInterval, 1000);
     }
   };
 
   @action
-  changeTurn = (reason: string): void => {
+  changeTurn = (reason: string = ''): void => {
     if (this.currentPlayer === null)
       throw new Error(
         "currentPlayer state shouldn't be null when changeTurn is called"
       );
     this._userIndex++;
-    this.spinResult = null;
-    this.solveSentence = null;
-    this.solvingIndex = null;
-    this.isVocalBought = false;
     this.announcementText = `${reason} Now it's ${
       this.currentPlayer.name
     }'s turn! Spin ${
@@ -93,15 +127,33 @@ export class Store {
         ? ', solve or buy a vocal for 250 points'
         : ' or solve'
     }.`;
+    this.startTurn();
+  };
 
-    /*clearTimeout(_turnTimeoutId);
-    _turnTimeoutId = setTimeout(() => {
-      if (!this.currentPlayer) return;
-      alert(
-        `${this.currentPlayer.name}'s turn took too long (${this.turnTimeLimit} seconds) and turn is changed to the next player.`
-      );
+  @action
+  startTurn = () => {
+    this.spinResult = null;
+    this.solveSentence = null;
+    this.solvingIndex = null;
+    this.isVocalBought = false;
+    this.remainingTime = this.reactionTimeLimit;
+
+    clearInterval(_turnTimeoutId);
+    _turnTimeoutId = setInterval(this.tickInterval, 1000);
+  };
+
+  @action
+  tickInterval = (): void => {
+    if (!this.currentPlayer) return;
+    this.remainingTime = this.remainingTime - 1;
+
+    if (this.remainingTime < 0) {
+      clearInterval(_turnTimeoutId);
+      const message = `${this.currentPlayer.name}'s turn took too long (${this.reactionTimeLimit} seconds) so turn is changed to the next player.`;
+      // Show an alert to catch attention for now until a better design has been implemented
+      alert(message);
       this.changeTurn();
-    }, this.turnTimeLimit);*/
+    }
   };
 
   /**
@@ -159,7 +211,7 @@ export class Store {
       }
 
       this.spinResult = null;
-
+      this.remainingTime = this.reactionTimeLimit;
       this.announcementText = `Letter '${letter}' appears ${
         (this.puzzle.match(new RegExp(letter, 'g')) || []).length
       } times! Spin again${
@@ -178,6 +230,8 @@ export class Store {
   attemptSolve = (): void => {
     this.solveSentence = this.puzzle.replace(/\s/g, '').split('') as Letter[];
     this.solvingIndex = getSolvingIndex(this);
+    clearInterval(_turnTimeoutId);
+    this.remainingTime = -1;
   };
 
   @action
@@ -186,6 +240,7 @@ export class Store {
     this.puzzle = sentence.trim().toUpperCase();
     this.unlockedLetters.clear();
     this.isGameOver = false;
+    this.startTurn();
   };
 
   @computed
@@ -243,34 +298,13 @@ export class Store {
       !this.isOnlyVocalsLeft &&
       !this.isSpinning &&
       this.players.length > 0 &&
-      this.spinResult === null
+      this.spinResult === null &&
+      !this.isGameOver
     );
   }
-}
 
-function getSolvingIndex({
-  solveSentence,
-  solvingIndex,
-  unlockedLetters
-}: TStore): number | null {
-  if (!solveSentence) {
-    throw Error('Cannot get solving index when solving sentence is null');
+  @computed
+  get isTimeTicking(): boolean {
+    return this.remainingTime > -1;
   }
-
-  for (
-    let i = solvingIndex !== null ? solvingIndex + 1 : 0;
-    i < solveSentence.length;
-    i++
-  ) {
-    const letter = solveSentence[i];
-    if (!unlockedLetters.has(letter as Letter)) {
-      return i;
-    }
-  }
-
-  return null;
 }
-
-let _turnTimeoutId: number;
-
-export type TStore = Store;

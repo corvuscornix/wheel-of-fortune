@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react';
-import { TStore, Store } from './store';
+import { Store } from './store';
 import { useLocalStore } from 'mobx-react';
 
-const storeContext = React.createContext<TStore | null>(null);
+const storeContext = React.createContext<Store | null>(null);
 storeContext.displayName = 'Store';
 
 declare const window: any;
 
-const createStore = (): TStore => {
+const createStore = (): Store => {
   return new Store('Welcome to wheel of fortune');
 };
 
