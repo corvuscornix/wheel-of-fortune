@@ -4,7 +4,7 @@ import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from './store/createStore';
 import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
-import { FlexColumn, FlexRow, Panel } from './components/layout';
+import { FlexColumn, FlexRow, Panel, Button } from './components/layout';
 
 const AppMain = styled.main`
   max-width: 1000px;
@@ -47,10 +47,13 @@ const App: FunctionComponent = observer(() => {
           <FlexColumn>
             <Panel height="auto">
               {store.canSolve && !store.isSolving && (
-                <button onClick={store.attemptSolve}>Solve</button>
+                <Button background="#8bc34a" onClick={store.attemptSolve}>
+                  Solve
+                </Button>
               )}
-              {!store.isSpinning && (
-                <button
+              {store.isTimeTicking && (
+                <Button
+                  background="#ff5722"
                   onClick={() =>
                     store.changeTurn(
                       `${
@@ -60,7 +63,7 @@ const App: FunctionComponent = observer(() => {
                   }
                 >
                   Skip turn
-                </button>
+                </Button>
               )}
             </Panel>
             <Players />
@@ -69,7 +72,7 @@ const App: FunctionComponent = observer(() => {
                 ? `Thinking time left: ${store.remainingTime} sec`
                 : null}
             </RemainingTime>
-            <button onClick={store.startNewRound}>New round</button>
+            <Button onClick={store.startNewRound}>New round</Button>
           </FlexColumn>
         </FlexRow>
       </FlexColumn>

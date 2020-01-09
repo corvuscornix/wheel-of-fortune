@@ -1,6 +1,12 @@
 import { observable, action, computed } from 'mobx';
 import { Consonant, Vocal, Sector, Letter } from './types';
-import { vocals, consonants, BUY_VOCAL_PRICE } from './constants';
+import {
+  vocals,
+  consonants,
+  BUY_VOCAL_PRICE,
+  REACTION_TIMEOUT,
+  SOLVE_TIMEOUT
+} from './constants';
 
 export class Player {
   @observable name: string = '';
@@ -48,19 +54,18 @@ export class Store {
   @observable solvingIndex: number | null = null;
   @observable solveSentence: Letter[] | null = null;
   @observable isGameOver: boolean = false;
-  @observable reactionTimeLimit: number = 10;
+  @observable reactionTimeLimit: number = REACTION_TIMEOUT; // Maybe in the future this can be changed by the users
   @observable isVocalBought: boolean = false;
-  @observable remainingTime: number = 0;
+  @observable remainingTime: number = -1;
 
-  _userIndex: number = 0;
+  @observable _userIndex: number = 0;
   _turnTimeoutId: number = -1;
 
   constructor(puzzle: string) {
     this.puzzle = puzzle.toUpperCase();
     this.consonantOptions = new Set<Consonant>(consonants);
     this.unlockedLetters = new Set<Letter>();
-    this.players = [new Player('Antero'), new Player('Amal')];
-    this.startTurn();
+    this.players = [];
   }
 
   @action
@@ -84,9 +89,9 @@ export class Store {
   handleSpinResult = (result: Sector): void => {
     this.isSpinning = false;
 
-    if (this.currentPlayer === null)
+    if (this.currentPlayer === undefined)
       throw new Error(
-        'currentPlayer state shouldnt be null when handleSpinResult is called'
+        "currentPlayer state shouldn't be null when handleSpinResult is called"
       );
     switch (result) {
       case Sector.BANKRUPT:
@@ -109,7 +114,7 @@ export class Store {
 
   @action
   changeTurn = (reason: string = ''): void => {
-    if (this.currentPlayer === null)
+    if (this.currentPlayer === undefined)
       throw new Error(
         "currentPlayer state shouldn't be null when changeTurn is called"
       );
@@ -121,11 +126,12 @@ export class Store {
         ? ', solve or buy a vocal for 250 points'
         : ' or solve'
     }.`;
-    this.startTurn();
+    this.beginTurn();
   };
 
   @action
-  startTurn = () => {
+  beginTurn = () => {
+    if (!this.currentPlayer) return;
     this.spinResult = null;
     this.solveSentence = null;
     this.solvingIndex = null;
@@ -159,7 +165,7 @@ export class Store {
   @action
   attemptLetter = (letter: Letter): void => {
     letter = letter.toUpperCase() as Letter;
-    if (this.currentPlayer === null) {
+    if (this.currentPlayer === undefined) {
       throw new Error(
         "currentPlayer state shouldn't be null during letter attempt"
       );
@@ -178,6 +184,7 @@ export class Store {
             player.points = 0;
           }
           this.isGameOver = true;
+          this.clearTicking();
         } else {
           this.changeTurn(
             `Good attempt but that was wrong, ${this.currentPlayer.name}..`
@@ -225,11 +232,14 @@ export class Store {
   attemptSolve = (): void => {
     this.solveSentence = this.puzzle.replace(/\s/g, '').split('') as Letter[];
     this.solvingIndex = getSolvingIndex(this);
+    this.startTicking(SOLVE_TIMEOUT);
   };
 
   @action
-  startTicking = (): void => {
-    this.remainingTime = this.reactionTimeLimit;
+  startTicking = (tickingTime?: number): void => {
+    this.clearTicking();
+    this.remainingTime =
+      tickingTime !== undefined ? tickingTime : this.reactionTimeLimit;
     this._turnTimeoutId = setInterval(this.tickInterval, 1000);
   };
 
@@ -242,10 +252,11 @@ export class Store {
   @action
   startNewRound = (): void => {
     let sentence = prompt('Enter sentence for new round') || '';
+    if (!sentence) return;
     this.puzzle = sentence.trim().toUpperCase();
     this.unlockedLetters.clear();
     this.isGameOver = false;
-    this.startTurn();
+    this.beginTurn();
   };
 
   @action
@@ -253,27 +264,23 @@ export class Store {
     this.editingPlayers = !this.editingPlayers;
     if (this.editingPlayers) {
       this.clearTicking();
-    } else {
-      this.startTurn();
+    } else if (!this.isGameOver) {
+      this.beginTurn();
     }
   };
 
   @computed
-  get currentPlayer(): Player {
+  get currentPlayer(): Player | undefined {
     return this.players[this._userIndex % this.players.length];
   }
 
   @computed
   get isVocalAvailable(): boolean {
-    if (this.currentPlayer === null)
-      throw new Error(
-        "currentPlayer state shouldn't be null when isVocalAvailable is called"
-      );
-
     return (
       (this.spinResult === null &&
         !this.isSpinning &&
         !this.isVocalBought &&
+        this.currentPlayer !== undefined &&
         this.currentPlayer.points >= BUY_VOCAL_PRICE) ||
       this.solvingIndex !== null
     );
@@ -290,7 +297,13 @@ export class Store {
 
   @computed
   get canSolve(): boolean {
-    return !this.isSpinning && this.spinResult === null && !this.isGameOver;
+    return (
+      this.currentPlayer !== undefined &&
+      !this.isSpinning &&
+      this.spinResult === null &&
+      !this.isGameOver &&
+      !this.editingPlayers
+    );
   }
 
   @computed
@@ -319,7 +332,8 @@ export class Store {
       !this.isSpinning &&
       this.players.length > 0 &&
       this.spinResult === null &&
-      !this.isGameOver
+      !this.isGameOver &&
+      !this.editingPlayers
     );
   }
 

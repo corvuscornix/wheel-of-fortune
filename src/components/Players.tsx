@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/macro';
 import { useStore } from '../store/createStore';
 import { observer } from 'mobx-react';
+import { Button } from './layout';
 
 const Container = styled.div`
   width: 200px;
@@ -61,9 +62,9 @@ export const Players: React.FunctionComponent<{}> = observer(() => {
           onKeyDown={handlePlayerInput}
         />
       )}
-      <button onClick={store.editPlayersToggle}>
+      <Button onClick={store.editPlayersToggle}>
         {store.editingPlayers ? 'Done' : 'Edit players'}
-      </button>
+      </Button>
     </Container>
   );
 });

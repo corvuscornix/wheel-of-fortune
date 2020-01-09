@@ -23,3 +23,5 @@ export const consonants = [
 ] as const;
 
 export const BUY_VOCAL_PRICE = 250;
+export const REACTION_TIMEOUT = 10;
+export const SOLVE_TIMEOUT = 20;
