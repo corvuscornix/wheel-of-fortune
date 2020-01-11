@@ -2,8 +2,8 @@ import React, { FunctionComponent } from 'react';
 import { Store } from './store';
 import { useLocalStore } from 'mobx-react';
 
-const storeContext = React.createContext<Store | null>(null);
-storeContext.displayName = 'Store';
+const StoreContext = React.createContext<Store | null>(null);
+StoreContext.displayName = 'Store';
 
 declare const window: any;
 
@@ -17,12 +17,12 @@ export const StoreProvider: FunctionComponent = ({ children }) => {
   window.store = store;
 
   return (
-    <storeContext.Provider value={store}>{children}</storeContext.Provider>
+    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
   );
 };
 
 export const useStore = () => {
-  const store = React.useContext(storeContext);
+  const store = React.useContext(StoreContext);
   if (!store) {
     // this is especially useful in TypeScript so you don't need to be checking for null all the time
     throw new Error('useStore must be used within a StoreProvider.');

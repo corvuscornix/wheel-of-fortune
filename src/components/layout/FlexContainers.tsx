@@ -25,6 +25,6 @@ export const FlexColumn = styled.div<FlexContainerProps>`
 `;
 
 export const CenterAlign = styled(FlexColumn)`
-  width: 100%;
+  margin: auto;
   align-items: center;
 `;

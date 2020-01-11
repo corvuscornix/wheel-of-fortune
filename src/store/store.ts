@@ -43,6 +43,7 @@ function getSolvingIndex({
 
 export class Store {
   @observable puzzle: string = '';
+  @observable puzzleSubject: string | null = 'test';
   @observable consonantOptions: Set<Consonant>;
   @observable vocalOptions = new Set<Vocal>(vocals);
   @observable unlockedLetters: Set<Letter>;
@@ -251,9 +252,11 @@ export class Store {
 
   @action
   startNewRound = (): void => {
-    let sentence = prompt('Enter sentence for new round') || '';
-    if (!sentence) return;
-    this.puzzle = sentence.trim().toUpperCase();
+    //let sentence = prompt(
+    //  'Enter your own sentence for a new round or leave empty to get random puzzle.'
+    //);
+    //if (!sentence) return;
+    this.puzzle = this.puzzle.trim().toUpperCase();
     this.unlockedLetters.clear();
     this.isGameOver = false;
     this.beginTurn();

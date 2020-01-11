@@ -11,3 +11,11 @@ export const Button = styled.button<{ background?: string }>`
     opacity: 0.8;
   }
 `;
+
+export const ConfirmButton = styled(Button)`
+  background: ${props => props.theme.colorConfirm};
+`;
+
+export const AlarmButton = styled(Button)`
+  background: ${props => props.theme.colorAlarm};
+`;

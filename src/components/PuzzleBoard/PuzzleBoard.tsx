@@ -4,10 +4,11 @@ import styled from 'styled-components/macro';
 import LetterTile from './LetterTile';
 import { useStore } from '../../store/createStore';
 import { Letter } from '../../store/types';
+import { FlexColumn } from '../layout';
 
 export const GRID_ROW_LENGTH = 14;
 
-const Container = styled.div`
+const TilesContainer = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -20,7 +21,8 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
     unlockedLetters,
     solvingIndex,
     solveSentence,
-    isGameOver
+    isGameOver,
+    puzzleSubject
   } = store;
 
   let puzzleRows: string[] = [];
@@ -62,37 +64,54 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
   let letterIndex = 0;
 
   return (
-    <Container>
-      {puzzleRows.map(row =>
-        row.split('').map((letter, index) => {
-          const isNotEmpty = letter !== ' ';
-          const useSolveAttemptLetter = isNotEmpty && solvingIndex !== null;
-          let thisLetterIndex = useSolveAttemptLetter
-            ? letterIndex++
-            : Infinity;
+    <FlexColumn style={{ height: 'auto', overflow: 'unset' }}>
+      <TilesContainer>
+        {puzzleRows.map(row =>
+          row.split('').map((letter, index) => {
+            const isNotEmpty = letter !== ' ';
+            const useSolveAttemptLetter = isNotEmpty && solvingIndex !== null;
+            let thisLetterIndex = useSolveAttemptLetter
+              ? letterIndex++
+              : Infinity;
 
-          return (
-            <LetterTile
-              key={index}
-              unlocked={
-                unlockedLetters.has(letter as Letter) ||
-                isGameOver ||
-                (useSolveAttemptLetter &&
-                  solvingIndex !== null &&
-                  thisLetterIndex < solvingIndex)
-              }
-              character={
-                solveSentence && useSolveAttemptLetter
-                  ? solveSentence[thisLetterIndex]
-                  : (letter as Letter)
-              }
-              highlighted={
-                useSolveAttemptLetter && thisLetterIndex === solvingIndex
-              }
-            />
-          );
-        })
-      )}
-    </Container>
+            return (
+              <LetterTile
+                key={index}
+                unlocked={
+                  unlockedLetters.has(letter as Letter) ||
+                  isGameOver ||
+                  (useSolveAttemptLetter &&
+                    solvingIndex !== null &&
+                    thisLetterIndex < solvingIndex)
+                }
+                character={
+                  solveSentence && useSolveAttemptLetter
+                    ? solveSentence[thisLetterIndex]
+                    : (letter as Letter)
+                }
+                highlighted={
+                  useSolveAttemptLetter && thisLetterIndex === solvingIndex
+                }
+              />
+            );
+          })
+        )}
+      </TilesContainer>
+      {puzzleSubject !== null ? (
+        <div
+          style={{
+            margin: 'auto',
+            marginTop: -16,
+            padding: '4px 16px',
+            borderRadius: 15,
+            background: 'blue',
+            color: 'white',
+            border: '1px solid white'
+          }}
+        >
+          {puzzleSubject}
+        </div>
+      ) : null}
+    </FlexColumn>
   );
 });
