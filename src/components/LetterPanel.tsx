@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useStore } from '../store/createStore';
@@ -17,13 +17,8 @@ const LetterButton = styled.button<{ vocal?: boolean }>`
   ${props => props.vocal && 'background: yellow;'};
 
   :disabled {
-    opacity: 0.3;
+    opacity: 0.2;
   }
-`;
-
-const HiddenKeyboardInputForSolveAttempt = styled.input`
-  position: fixed;
-  left: -99999px;
 `;
 
 export const LetterPanel: FunctionComponent = observer(() => {
@@ -37,6 +32,20 @@ export const LetterPanel: FunctionComponent = observer(() => {
     attemptLetter,
     isSolving
   } = store;
+
+  useEffect(() => {
+    // Hijack any keypress when in certain state
+    document.onkeypress = function(e) {
+      if (isSolving || isVocalAvailable || isConsonantAvailable) {
+        e = e || window.event;
+        attemptLetter(e.key as Letter);
+      }
+    };
+
+    return () => {
+      document.onkeypress = null;
+    };
+  });
 
   return (
     <Panel height="auto">
@@ -65,17 +74,6 @@ export const LetterPanel: FunctionComponent = observer(() => {
           ))}
         </div>
       </ContainerDiv>
-      {(isSolving || isVocalAvailable || isConsonantAvailable) && (
-        <HiddenKeyboardInputForSolveAttempt
-          autoFocus
-          onInput={(e: React.FormEvent<HTMLInputElement>): void => {
-            //alert('gottit');
-            attemptLetter(e.currentTarget.value[0] as Letter);
-            e.currentTarget.value = '';
-            e.preventDefault();
-          }}
-        />
-      )}
     </Panel>
   );
 });

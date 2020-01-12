@@ -27,6 +27,8 @@ export const NewGameDialog: React.FunctionComponent<NewGameDialogProps> = ({
 
   if (!show) return null;
 
+  store.clearTicking();
+
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value, name } = event.currentTarget;
 

@@ -147,13 +147,9 @@ export class Store {
   tickInterval = (): void => {
     if (!this.currentPlayer) return;
     this.remainingTime = this.remainingTime - 1;
-    console.log(this.remainingTime);
 
     if (this.remainingTime < 0) {
       this.clearTicking();
-      const message = `${this.currentPlayer.name}'s turn took too long (${this.reactionTimeLimit} seconds) so turn is changed to the next player.`;
-      // Show an alert to catch attention for now until a better design has been implemented
-      alert(message);
       this.changeTurn();
     }
   };
@@ -262,10 +258,6 @@ export class Store {
 
   @action
   startNewRound = (): void => {
-    //let sentence = prompt(
-    //  'Enter your own sentence for a new round or leave empty to get random puzzle.'
-    //);
-    //if (!sentence) return;
     this.puzzle = this.puzzle.trim().toUpperCase();
     this.unlockedLetters.clear();
     this.isGameOver = false;
