@@ -65,10 +65,11 @@ export const LetterPanel: FunctionComponent = observer(() => {
           ))}
         </div>
       </ContainerDiv>
-      {isSolving && (
+      {(isSolving || isVocalAvailable || isConsonantAvailable) && (
         <HiddenKeyboardInputForSolveAttempt
           autoFocus
           onInput={(e: React.FormEvent<HTMLInputElement>): void => {
+            //alert('gottit');
             attemptLetter(e.currentTarget.value[0] as Letter);
             e.currentTarget.value = '';
             e.preventDefault();

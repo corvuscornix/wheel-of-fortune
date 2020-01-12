@@ -34,9 +34,9 @@ export const NewGameDialog: React.FunctionComponent<NewGameDialogProps> = ({
   };
 
   const handleSubmit = () => {
-    if (formData['sentence'] !== null && formData['subject'] !== null) {
+    if (formData['sentence'] !== null) {
       store.puzzle = formData['sentence'];
-      store.puzzleSubject = formData['subject'];
+      store.puzzleSubject = formData['subject'] || null;
       store.startNewRound();
     }
 

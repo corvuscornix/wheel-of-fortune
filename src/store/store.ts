@@ -166,6 +166,11 @@ export class Store {
   @action
   attemptLetter = (letter: Letter): void => {
     letter = letter.toUpperCase() as Letter;
+
+    if (this.unlockedLetters.has(letter)) {
+      return;
+    }
+
     if (this.currentPlayer === undefined) {
       throw new Error(
         "currentPlayer state shouldn't be null during letter attempt"
@@ -197,7 +202,12 @@ export class Store {
       return;
     }
 
-    if (vocals.indexOf(letter as Vocal) > -1) {
+    const isVocal = vocals.indexOf(letter as Vocal) > -1;
+
+    if (isVocal && !this.isVocalAvailable) return;
+    else if (!isVocal && !this.isConsonantAvailable) return;
+
+    if (isVocal) {
       this.currentPlayer.points -= BUY_VOCAL_PRICE;
       this.isVocalBought = true;
     } else {
