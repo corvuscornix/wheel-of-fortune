@@ -19,3 +19,8 @@ export const ConfirmButton = styled(Button)`
 export const AlarmButton = styled(Button)`
   background: ${props => props.theme.colorAlarm};
 `;
+
+export const SmallButton = styled(Button)`
+  padding: 4px;
+  font-size: 14px;
+`;

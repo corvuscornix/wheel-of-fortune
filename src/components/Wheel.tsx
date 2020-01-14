@@ -1,10 +1,10 @@
 import styled from 'styled-components/macro';
 import React, { createRef } from 'react';
 import { observer } from 'mobx-react';
-import { useStore } from '../store/createStore';
+import { useAppState } from '../state/stateContext';
 import { CenterAlign } from './layout';
 import { useState } from 'react';
-import { Sector } from '../store/types';
+import { Sector } from '../state/types';
 
 const MIN_SPIN_AMOUNT = 540;
 const MAX_SPIN_AMOUNT = 900;
@@ -122,7 +122,7 @@ function getSpinResult(degrees: number): Sector {
 const wheelImageRef = createRef<HTMLDivElement>();
 
 export const Wheel: React.FunctionComponent = observer(() => {
-  const store = useStore();
+  const store = useAppState();
 
   const [{ rotation, rotationTime }, setRotation] = useState({
     rotation: 0,

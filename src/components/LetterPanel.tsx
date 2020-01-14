@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useEffect } from 'react';
 import styled from 'styled-components/macro';
 import { observer } from 'mobx-react';
-import { useStore } from '../store/createStore';
-import { CenterAlign, Panel } from './layout';
-import { Letter } from '../store/types';
+import { useAppState } from '../state/stateContext';
+import { Panel } from './layout';
+import { Letter } from '../state/types';
 
 const ContainerDiv = styled.div`
   width: 100%;
@@ -22,7 +22,7 @@ const LetterButton = styled.button<{ vocal?: boolean }>`
 `;
 
 export const LetterPanel: FunctionComponent = observer(() => {
-  const store = useStore();
+  const store = useAppState();
   const {
     consonantOptions,
     unlockedLetters,
