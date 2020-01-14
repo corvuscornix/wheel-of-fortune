@@ -1,9 +1,15 @@
 import './App.css';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import styled, { ThemeProvider } from 'styled-components/macro';
 import { observer } from 'mobx-react';
-import { useStore } from './store/createStore';
-import { LetterPanel, Players, Wheel, PuzzleBoard } from './components';
+import { useAppState } from './state/stateContext';
+import {
+  LetterPanel,
+  Players,
+  Wheel,
+  PuzzleBoard,
+  NewGameDialog
+} from './components';
 import {
   FlexColumn,
   FlexRow,
@@ -12,7 +18,6 @@ import {
   ConfirmButton,
   AlarmButton
 } from './components/layout';
-import { NewGameDialog } from './components/NewGameDialog';
 
 const theme = {
   colorBg: '#070799',
@@ -45,14 +50,13 @@ const RemainingTime = styled.div<{ timeLow: boolean }>`
 `;
 
 const App: FunctionComponent = observer(() => {
-  const store = useStore();
-  const [isNewGameDialogOpen, showNewGameDialog] = useState(false);
+  const appState = useAppState();
 
   return (
     <ThemeProvider theme={theme}>
       <AppMain>
         <FlexColumn>
-          <AnnouncementText>{store.announcementText}</AnnouncementText>
+          <AnnouncementText>{appState.announcementText}</AnnouncementText>
           <PuzzleBoard />
           <LetterPanel />
           <FlexRow grow="2">
@@ -63,18 +67,19 @@ const App: FunctionComponent = observer(() => {
             </FlexColumn>
             <FlexColumn>
               <Panel height="auto">
-                {store.canSolve && !store.isSolving && (
-                  <ConfirmButton onClick={store.attemptSolve}>
+                {appState.canSolve && !appState.isSolving && (
+                  <ConfirmButton onClick={appState.attemptSolve}>
                     Solve
                   </ConfirmButton>
                 )}
-                {store.isTimeTicking && (
+                {appState.isTimeTicking && (
                   <AlarmButton
-                    background="#ff5722"
                     onClick={() =>
-                      store.changeTurn(
+                      appState.changeTurn(
                         `${
-                          store.currentPlayer ? store.currentPlayer.name : ''
+                          appState.currentPlayer
+                            ? appState.currentPlayer.name
+                            : ''
                         } skipped.`
                       )
                     }
@@ -84,19 +89,18 @@ const App: FunctionComponent = observer(() => {
                 )}
               </Panel>
               <Players />
-              <RemainingTime timeLow={store.remainingTime < 5}>
-                {store.isTimeTicking
-                  ? `Thinking time left: ${store.remainingTime} sec`
+              <RemainingTime timeLow={appState.remainingTime < 5}>
+                {appState.isTimeTicking
+                  ? `Thinking time left: ${appState.remainingTime} sec`
                   : null}
               </RemainingTime>
-              <Button onClick={() => showNewGameDialog(true)}>New round</Button>
+              <Button onClick={() => (appState.isEditingGame = true)}>
+                New game
+              </Button>
             </FlexColumn>
           </FlexRow>
         </FlexColumn>
-        <NewGameDialog
-          onClose={() => showNewGameDialog(false)}
-          show={isNewGameDialogOpen}
-        />
+        <NewGameDialog />
       </AppMain>
     </ThemeProvider>
   );

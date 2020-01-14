@@ -2,8 +2,8 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import styled from 'styled-components/macro';
 import LetterTile from './LetterTile';
-import { useStore } from '../../store/createStore';
-import { Letter } from '../../store/types';
+import { useAppState } from '../../state/stateContext';
+import { Letter } from '../../state/types';
 import { FlexColumn } from '../layout';
 
 export const GRID_ROW_LENGTH = 14;
@@ -15,7 +15,7 @@ const TilesContainer = styled.div`
 `;
 
 export const PuzzleBoard: React.FunctionComponent = observer(() => {
-  const store = useStore();
+  const store = useAppState();
   const {
     puzzle,
     unlockedLetters,

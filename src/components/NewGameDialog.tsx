@@ -1,69 +1,99 @@
 import React, { useState } from 'react';
+import { observer } from 'mobx-react';
 import {
   Overlay,
   Dialog,
   Button,
   FlexColumn,
   FlexRow,
-  ConfirmButton
+  ConfirmButton,
+  SmallButton
 } from './layout';
-import { useStore } from '../store/createStore';
+import { useAppState } from '../state/stateContext';
+import { Players } from '.';
+import { Puzzle } from '../state/state';
 
-interface NewGameDialogProps {
-  onClose?: () => void;
-  show: boolean;
-}
-
-export const NewGameDialog: React.FunctionComponent<NewGameDialogProps> = ({
-  onClose,
-  show
-}) => {
-  const store = useStore();
+export const NewGameDialog: React.FunctionComponent = observer(() => {
+  const appState = useAppState();
+  const { isEditingGame, clearTicking, startNewGame } = appState;
 
   const [formData, setFormFieldData] = useState<{
-    sentence: string | null;
-    subject: string | null;
-  }>({ sentence: null, subject: null });
+    sentence: string;
+    subject: string;
+    puzzles: Puzzle[];
+  }>({ sentence: '', subject: '', puzzles: [] });
 
-  if (!show) return null;
+  const { sentence, subject, puzzles } = formData;
 
-  store.clearTicking();
+  if (!isEditingGame) return null;
+
+  clearTicking();
 
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value, name } = event.currentTarget;
-
     setFormFieldData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = () => {
-    if (formData['sentence'] !== null) {
-      store.puzzle = formData['sentence'];
-      store.puzzleSubject = formData['subject'] || null;
-      store.startNewRound();
-    }
+  const handleAdd = () => {
+    if (sentence.length > 0) {
+      puzzles.push({
+        sentence,
+        subject
+      });
 
-    if (onClose) onClose();
+      setFormFieldData({
+        sentence: '',
+        subject: '',
+        puzzles
+      });
+    }
+  };
+
+  const handleSubmit = () => {
+    appState.puzzles = puzzles;
+    appState.isEditingGame = false;
+    startNewGame();
   };
 
   return (
     <Overlay>
       <Dialog style={{ maxWidth: 400 }}>
         <FlexColumn>
+          {puzzles.map((puzzle, index) => (
+            <p key={index}>{`${index + 1}. ${puzzle.sentence} (${
+              puzzle.subject
+            })`}</p>
+          ))}
           <label htmlFor="sentence">Sentence</label>
           <input
             autoFocus
+            autoComplete="off"
             name="sentence"
             onChange={handleChange}
+            value={sentence}
             type="text"
           ></input>
           <label htmlFor="subject">Subject</label>
-          <input name="subject" onChange={handleChange} type="text"></input>
+          <input
+            name="subject"
+            autoComplete="off"
+            onChange={handleChange}
+            value={subject}
+            type="text"
+          ></input>
+          <FlexRow>
+            <SmallButton onClick={handleAdd}>Add</SmallButton>
+          </FlexRow>
+
+          <Players editable />
           <FlexRow style={{ paddingTop: 16 }}>
-            <ConfirmButton onClick={handleSubmit}>Done</ConfirmButton>
-            <Button onClick={onClose}>Cancel</Button>
+            <ConfirmButton onClick={handleSubmit}>Start game</ConfirmButton>
+            <Button onClick={() => (appState.isEditingGame = false)}>
+              Cancel
+            </Button>
           </FlexRow>
         </FlexColumn>
       </Dialog>
     </Overlay>
   );
-};
+});

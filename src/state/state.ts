@@ -1,4 +1,5 @@
-import { observable, action, computed } from 'mobx';
+import { useLocalStore } from 'mobx-react';
+import { observable, action, computed, autorun } from 'mobx';
 import { Consonant, Vocal, Sector, Letter } from './types';
 import {
   vocals,
@@ -18,11 +19,15 @@ export class Player {
   }
 }
 
+export class Puzzle {
+  constructor(public sentence: string, public subject: string) {}
+}
+
 function getSolvingIndex({
   solveSentence,
   solvingIndex,
   unlockedLetters
-}: Store): number | null {
+}: State): number | null {
   if (!solveSentence) {
     throw Error('Cannot get solving index when solving sentence is null');
   }
@@ -41,16 +46,14 @@ function getSolvingIndex({
   return null;
 }
 
-export class Store {
-  @observable puzzle: string = '';
-  @observable puzzleSubject: string | null = 'test';
+export class State {
+  @observable puzzles: Puzzle[] = [];
   @observable consonantOptions: Set<Consonant>;
   @observable vocalOptions = new Set<Vocal>(vocals);
   @observable unlockedLetters: Set<Letter>;
   @observable isSpinning: boolean = false;
   @observable spinResult: Sector | null = null;
   @observable players: Player[];
-  @observable editingPlayers: boolean = false;
   @observable announcementText: string = 'Welcome to Wheel of Fortune!';
   @observable solvingIndex: number | null = null;
   @observable solveSentence: Letter[] | null = null;
@@ -58,12 +61,13 @@ export class Store {
   @observable reactionTimeLimit: number = REACTION_TIMEOUT; // Maybe in the future this can be changed by the users
   @observable isVocalBought: boolean = false;
   @observable remainingTime: number = -1;
+  @observable isEditingGame: boolean = false;
 
+  @observable _currentPuzzleIndex: number = -1;
   @observable _userIndex: number = 0;
   _turnTimeoutId: number = -1;
 
-  constructor(puzzle: string) {
-    this.puzzle = puzzle.toUpperCase();
+  constructor() {
     this.consonantOptions = new Set<Consonant>(consonants);
     this.unlockedLetters = new Set<Letter>();
     this.players = [];
@@ -82,7 +86,6 @@ export class Store {
   @action
   spin = (): void => {
     this.isSpinning = true;
-    this.clearTicking();
     this.remainingTime = -1;
   };
 
@@ -108,7 +111,6 @@ export class Store {
           this.currentPlayer.name
         }, you spun ${this.spinResult.toString()}! Choose a consonant.`;
         this.remainingTime = this.reactionTimeLimit;
-        this.clearTicking();
         this.startTicking();
     }
   };
@@ -139,7 +141,6 @@ export class Store {
     this.isVocalBought = false;
     this.remainingTime = this.reactionTimeLimit;
 
-    this.clearTicking();
     this.startTicking();
   };
 
@@ -186,7 +187,6 @@ export class Store {
             player.points = 0;
           }
           this.isGameOver = true;
-          this.clearTicking();
         } else {
           this.changeTurn(
             `Good attempt but that was wrong, ${this.currentPlayer.name}..`
@@ -258,21 +258,42 @@ export class Store {
 
   @action
   startNewRound = (): void => {
-    this.puzzle = this.puzzle.trim().toUpperCase();
+    if (!this.isNewRoundAvailable) {
+      return;
+    }
+
+    this._currentPuzzleIndex = this._currentPuzzleIndex + 1;
     this.unlockedLetters.clear();
     this.isGameOver = false;
     this.beginTurn();
   };
 
   @action
-  editPlayersToggle = (): void => {
-    this.editingPlayers = !this.editingPlayers;
-    if (this.editingPlayers) {
-      this.clearTicking();
-    } else if (!this.isGameOver) {
-      this.beginTurn();
+  startNewGame = (): void => {
+    this._currentPuzzleIndex = -1;
+    if (!this.isNewRoundAvailable) {
+      console.log('Add some puzzles first!');
+      return;
     }
+
+    this.startNewRound();
   };
+
+  @computed
+  get puzzle(): string {
+    const puzzleObj = this.puzzles[this._currentPuzzleIndex];
+    if (puzzleObj) return puzzleObj.sentence.toUpperCase();
+
+    return '';
+  }
+
+  @computed
+  get puzzleSubject(): string {
+    const puzzleObj = this.puzzles[this._currentPuzzleIndex];
+    if (puzzleObj) return puzzleObj.sentence;
+
+    return '';
+  }
 
   @computed
   get currentPlayer(): Player | undefined {
@@ -307,7 +328,7 @@ export class Store {
       !this.isSpinning &&
       this.spinResult === null &&
       !this.isGameOver &&
-      !this.editingPlayers
+      !this.isEditingGame
     );
   }
 
@@ -338,12 +359,37 @@ export class Store {
       this.players.length > 0 &&
       this.spinResult === null &&
       !this.isGameOver &&
-      !this.editingPlayers
+      !this.isEditingGame
     );
   }
 
   @computed
   get isTimeTicking(): boolean {
     return this.remainingTime > -1;
+  }
+
+  @computed
+  get isNewRoundAvailable(): boolean {
+    return this.puzzles.length - 1 > this._currentPuzzleIndex;
+  }
+
+  autoClearTicking = autorun(() => {
+    if (this.isEditingGame || this.isGameOver || this.isSpinning) {
+      this.clearTicking();
+    }
+  });
+}
+
+export class AppState {
+  private static instance: State;
+
+  static getInstance(): State {
+    if (AppState.instance) return this.instance;
+    const createStore = (): State => {
+      return new State();
+    };
+    AppState.instance = useLocalStore(createStore);
+
+    return AppState.instance;
   }
 }
