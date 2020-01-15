@@ -10,14 +10,7 @@ import {
   PuzzleBoard,
   NewGameDialog
 } from './components';
-import {
-  FlexColumn,
-  FlexRow,
-  Panel,
-  Button,
-  ConfirmButton,
-  AlarmButton
-} from './components/layout';
+import { FlexColumn, FlexRow, Panel, Button } from './components/layout';
 
 const theme = {
   colorBg: '#070799',
@@ -68,12 +61,13 @@ const App: FunctionComponent = observer(() => {
             <FlexColumn>
               <Panel height="auto">
                 {appState.canSolve && !appState.isSolving && (
-                  <ConfirmButton onClick={appState.attemptSolve}>
+                  <Button positive onClick={appState.attemptSolve}>
                     Solve
-                  </ConfirmButton>
+                  </Button>
                 )}
                 {appState.isTimeTicking && (
-                  <AlarmButton
+                  <Button
+                    negative
                     onClick={() =>
                       appState.changeTurn(
                         `${
@@ -85,7 +79,7 @@ const App: FunctionComponent = observer(() => {
                     }
                   >
                     Skip turn
-                  </AlarmButton>
+                  </Button>
                 )}
               </Panel>
               <Players />
@@ -94,6 +88,11 @@ const App: FunctionComponent = observer(() => {
                   ? `Thinking time left: ${appState.remainingTime} sec`
                   : null}
               </RemainingTime>
+              {appState.isGameOver && appState.isNewRoundAvailable && (
+                <Button positive onClick={appState.startNewRound}>
+                  Start next round
+                </Button>
+              )}
               <Button onClick={() => (appState.isEditingGame = true)}>
                 New game
               </Button>
