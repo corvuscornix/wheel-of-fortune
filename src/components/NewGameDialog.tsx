@@ -6,7 +6,6 @@ import {
   Button,
   FlexColumn,
   FlexRow,
-  ConfirmButton,
   SmallButton
 } from './layout';
 import { useAppState } from '../state/stateContext';
@@ -49,6 +48,14 @@ export const NewGameDialog: React.FunctionComponent = observer(() => {
     }
   };
 
+  const handleClearPuzzles = () => {
+    setFormFieldData({
+      sentence: '',
+      subject: '',
+      puzzles: []
+    });
+  };
+
   const handleSubmit = () => {
     appState.puzzles = puzzles;
     appState.isEditingGame = false;
@@ -83,11 +90,16 @@ export const NewGameDialog: React.FunctionComponent = observer(() => {
           ></input>
           <FlexRow>
             <SmallButton onClick={handleAdd}>Add</SmallButton>
+            <SmallButton negative onClick={handleClearPuzzles}>
+              Clear all
+            </SmallButton>
           </FlexRow>
 
           <Players editable />
           <FlexRow style={{ paddingTop: 16 }}>
-            <ConfirmButton onClick={handleSubmit}>Start game</ConfirmButton>
+            <Button positive onClick={handleSubmit}>
+              Start game
+            </Button>
             <Button onClick={() => (appState.isEditingGame = false)}>
               Cancel
             </Button>

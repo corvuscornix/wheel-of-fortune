@@ -18,12 +18,14 @@ interface DialogProps {
 }
 
 export const Dialog = styled.div<DialogProps>`
-  width: ${props => handleStylePropValue(props.width, '50%')};
-  height: ${props => handleStylePropValue(props.height, '50%')};
+  width: ${props => handleStylePropValue(props.width, 'auto')};
+  height: ${props => handleStylePropValue(props.height, 'auto')};
   background: ${props => props.theme.colorBg};
   color: white;
   padding: 24px;
   min-height: 200px;
   min-width: 300px;
+  max-height: 100vh;
+  max-width: 100vw;
   margin: auto;
 `;

@@ -290,7 +290,7 @@ export class State {
   @computed
   get puzzleSubject(): string {
     const puzzleObj = this.puzzles[this._currentPuzzleIndex];
-    if (puzzleObj) return puzzleObj.sentence;
+    if (puzzleObj) return puzzleObj.subject;
 
     return '';
   }
