@@ -1,3 +1,5 @@
+Wheel of Fortune party game for web browsers developed using TypeScript, React, Styled components and MobX. Still a work in progress.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
