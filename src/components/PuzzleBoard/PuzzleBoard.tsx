@@ -5,6 +5,7 @@ import LetterTile from './LetterTile';
 import { useAppState } from '../../state/stateContext';
 import { Letter } from '../../state/types';
 import { FlexColumn } from '../layout';
+import { letters } from '../../state/constants';
 
 export const GRID_ROW_LENGTH = 14;
 
@@ -24,6 +25,17 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
     isGameOver,
     puzzleSubject
   } = store;
+
+  const SubjectPanel = styled.div`
+    margin: auto;
+    font-size: 24px;
+    margin-top: -16px;
+    padding: 4px 16px;
+    border-radius: 15px;
+    background: blue;
+    color: white;
+    border: 1px solid white;
+  `;
 
   let puzzleRows: string[] = [];
   let row = '';
@@ -78,11 +90,13 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
               <LetterTile
                 key={index}
                 unlocked={
-                  unlockedLetters.has(letter as Letter) ||
-                  isGameOver ||
-                  (useSolveAttemptLetter &&
-                    solvingIndex !== null &&
-                    thisLetterIndex < solvingIndex)
+                  isNotEmpty &&
+                  (unlockedLetters.has(letter as Letter) ||
+                    !letters.has(letter as Letter) ||
+                    isGameOver ||
+                    (useSolveAttemptLetter &&
+                      solvingIndex !== null &&
+                      thisLetterIndex < solvingIndex))
                 }
                 character={
                   solveSentence && useSolveAttemptLetter
@@ -97,20 +111,8 @@ export const PuzzleBoard: React.FunctionComponent = observer(() => {
           })
         )}
       </TilesContainer>
-      {puzzleSubject !== null ? (
-        <div
-          style={{
-            margin: 'auto',
-            marginTop: -16,
-            padding: '4px 16px',
-            borderRadius: 15,
-            background: 'blue',
-            color: 'white',
-            border: '1px solid white'
-          }}
-        >
-          {puzzleSubject}
-        </div>
+      {puzzleSubject.length > 0 ? (
+        <SubjectPanel>{puzzleSubject}</SubjectPanel>
       ) : null}
     </FlexColumn>
   );

@@ -14,7 +14,8 @@ const LetterTileElement = styled.div<{ background: string }>`
   line-height: 50px;
   border: 2px solid black;
   text-align: center;
-
+  font-size: 32px;
+  font-weight: bold;
   background: ${props => props.background};
 `;
 

@@ -1,5 +1,5 @@
-import styled from 'styled-components/macro';
 import { handleStylePropValue } from './utils';
+import { styled } from '../../theme/theme';
 
 export const Overlay = styled.div`
   position: fixed;
@@ -20,7 +20,7 @@ interface DialogProps {
 export const Dialog = styled.div<DialogProps>`
   width: ${props => handleStylePropValue(props.width, 'auto')};
   height: ${props => handleStylePropValue(props.height, 'auto')};
-  background: ${props => props.theme.colorBg};
+  background: ${props => props.theme.color.background};
   color: white;
   padding: 24px;
   min-height: 200px;

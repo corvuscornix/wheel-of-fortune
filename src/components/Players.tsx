@@ -1,7 +1,8 @@
 import React from 'react';
-import styled from 'styled-components/macro';
+import { keyframes } from 'styled-components/macro';
 import { useAppState } from '../state/stateContext';
 import { observer } from 'mobx-react';
+import { styled } from '../theme/theme';
 
 const Container = styled.div`
   width: 200px;
@@ -15,6 +16,21 @@ const RemoveIconButton = styled.button`
   color: inherit;
   font-weight: bold;
   border: none;
+`;
+
+const Name = styled.div<{ selected?: boolean }>`
+  font-size: 18px;
+  transition: all 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  ${({ selected, theme }) => {
+    if (selected) {
+      return `
+        font-weight: bold;
+        font-size: 20px;
+        color: ${theme.color.confirm};
+      `;
+    }
+  }}
 `;
 
 export const Players: React.FunctionComponent<{
@@ -48,11 +64,9 @@ export const Players: React.FunctionComponent<{
     <Container>
       <p>Players:</p>
       {players.map((player, index) => (
-        <div
+        <Name
           key={player.name}
-          style={{
-            fontWeight: player === currentPlayer ? 'bold' : undefined
-          }}
+          selected={!editable && player === currentPlayer}
         >
           {`${player.name} ${player.points} pts (total: ${player.totalPoints})`}
           {editable && (
@@ -60,7 +74,7 @@ export const Players: React.FunctionComponent<{
               X
             </RemoveIconButton>
           )}
-        </div>
+        </Name>
       ))}
       {editTools}
     </Container>

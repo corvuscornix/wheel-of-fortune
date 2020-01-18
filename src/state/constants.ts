@@ -22,6 +22,8 @@ export const consonants = [
   'Z'
 ] as const;
 
+export const letters = new Set([...vocals, ...consonants]);
+
 export const BUY_VOCAL_PRICE = 250;
 export const REACTION_TIMEOUT = 15;
 export const SOLVE_TIMEOUT = 40;
