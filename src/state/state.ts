@@ -1,12 +1,13 @@
 import { useLocalStore } from 'mobx-react';
 import { observable, action, computed, autorun } from 'mobx';
-import { Consonant, Vocal, Sector, Letter } from './types';
+import { Consonant, Vocal, Sector, Letter, AnnouncementType } from './types';
 import {
   vocals,
   consonants,
   BUY_VOCAL_PRICE,
   REACTION_TIMEOUT,
-  SOLVE_TIMEOUT
+  SOLVE_TIMEOUT,
+  letters
 } from './constants';
 
 export class Player {
@@ -38,12 +39,22 @@ function getSolvingIndex({
     i++
   ) {
     const letter = solveSentence[i];
-    if (!unlockedLetters.has(letter as Letter)) {
+    if (
+      !unlockedLetters.has(letter as Letter) &&
+      letters.has(letter as Letter)
+    ) {
       return i;
     }
   }
 
   return null;
+}
+
+class Announcement {
+  constructor(
+    public message: string,
+    public type: AnnouncementType = AnnouncementType.NEUTRAL
+  ) {}
 }
 
 export class State {
@@ -53,15 +64,15 @@ export class State {
   @observable unlockedLetters: Set<Letter>;
   @observable isSpinning: boolean = false;
   @observable spinResult: Sector | null = null;
-  @observable players: Player[];
-  @observable announcementText: string = 'Welcome to Wheel of Fortune!';
+  @observable players: Player[] = [];
+  @observable announcement: Announcement | null = null;
   @observable solvingIndex: number | null = null;
   @observable solveSentence: Letter[] | null = null;
   @observable isGameOver: boolean = false;
   @observable reactionTimeLimit: number = REACTION_TIMEOUT; // Maybe in the future this can be changed by the users
   @observable isVocalBought: boolean = false;
   @observable remainingTime: number = -1;
-  @observable isEditingGame: boolean = false;
+  @observable isEditingGame: boolean = true;
 
   @observable _currentPuzzleIndex: number = -1;
   @observable _userIndex: number = 0;
@@ -70,7 +81,6 @@ export class State {
   constructor() {
     this.consonantOptions = new Set<Consonant>(consonants);
     this.unlockedLetters = new Set<Letter>();
-    this.players = [];
   }
 
   @action
@@ -107,9 +117,12 @@ export class State {
         break;
       default:
         this.spinResult = result;
-        this.announcementText = `${
-          this.currentPlayer.name
-        }, you spun ${this.spinResult.toString()}! Choose a consonant.`;
+        this.announcement = new Announcement(
+          `${
+            this.currentPlayer.name
+          }, you spun ${this.spinResult.toString()}! Choose a consonant.`,
+          AnnouncementType.POSITIVE
+        );
         this.remainingTime = this.reactionTimeLimit;
         this.startTicking();
     }
@@ -122,13 +135,14 @@ export class State {
         "currentPlayer state shouldn't be null when changeTurn is called"
       );
     this._userIndex++;
-    this.announcementText = `${reason} Now it's ${
-      this.currentPlayer.name
-    }'s turn! Spin ${
-      this.isVocalAvailable
-        ? ', solve or buy a vocal for 250 points'
-        : ' or solve'
-    }.`;
+    this.announcement = new Announcement(
+      `${reason} Now it's ${this.currentPlayer.name}'s turn! Spin ${
+        this.isVocalAvailable
+          ? ', solve or buy a vocal for 250 points'
+          : ' or solve'
+      }.`,
+      AnnouncementType.NEGATIVE
+    );
     this.beginTurn();
   };
 
@@ -181,12 +195,7 @@ export class State {
       // Last letter of solve attempt was entered, check whether the attempt is correct or failed
       if (this.solvingIndex === null) {
         if (this.solveSentence.join('') === this.puzzle.replace(/\s/g, '')) {
-          this.announcementText = `Correct! ${this.currentPlayer.name} won the round and gained ${this.currentPlayer.points} points! Shall we play another round?`;
-          this.currentPlayer.totalPoints += this.currentPlayer.points;
-          for (let player of this.players) {
-            player.points = 0;
-          }
-          this.isGameOver = true;
+          this.finishRound();
         } else {
           this.changeTurn(
             `Good attempt but that was wrong, ${this.currentPlayer.name}..`
@@ -221,13 +230,16 @@ export class State {
 
       this.spinResult = null;
       this.remainingTime = this.reactionTimeLimit;
-      this.announcementText = `Letter '${letter}' appears ${
-        (this.puzzle.match(new RegExp(letter, 'g')) || []).length
-      } times! Spin again${
-        this.isVocalAvailable
-          ? ', solve or buy a vocal for 250 points'
-          : ' or solve'
-      }.`;
+      this.announcement = new Announcement(
+        `Letter '${letter}' appears ${
+          (this.puzzle.match(new RegExp(letter, 'g')) || []).length
+        } times! Spin again${
+          this.isVocalAvailable
+            ? ', solve or buy a vocal for 250 points'
+            : ' or solve'
+        }.`,
+        AnnouncementType.POSITIVE
+      );
     } else {
       this.changeTurn(`Letter '${letter}' doesn't appear in the sentence.`);
     }
@@ -240,6 +252,20 @@ export class State {
     this.solveSentence = this.puzzle.replace(/\s/g, '').split('') as Letter[];
     this.solvingIndex = getSolvingIndex(this);
     this.startTicking(SOLVE_TIMEOUT);
+  };
+
+  @action
+  finishRound = (): void => {
+    if (!this.currentPlayer) return;
+    this.announcement = new Announcement(
+      `${this.currentPlayer.name} won the round and gained ${this.currentPlayer.points} points! Shall we play another round?`,
+      AnnouncementType.POSITIVE
+    );
+    this.currentPlayer.totalPoints += this.currentPlayer.points;
+    for (let player of this.players) {
+      player.points = 0;
+    }
+    this.isGameOver = true;
   };
 
   @action
@@ -272,7 +298,6 @@ export class State {
   startNewGame = (): void => {
     this._currentPuzzleIndex = -1;
     if (!this.isNewRoundAvailable) {
-      console.log('Add some puzzles first!');
       return;
     }
 
@@ -297,6 +322,7 @@ export class State {
 
   @computed
   get currentPlayer(): Player | undefined {
+    if (!this.players) return undefined;
     return this.players[this._userIndex % this.players.length];
   }
 
@@ -376,6 +402,29 @@ export class State {
   autoClearTicking = autorun(() => {
     if (this.isEditingGame || this.isGameOver || this.isSpinning) {
       this.clearTicking();
+    }
+  });
+
+  completeLevelWhenAllLettersUnlocked = autorun(() => {
+    for (let letter of this.puzzle) {
+      if (!this.unlockedLetters.has(letter as Letter)) {
+        return;
+      }
+    }
+
+    this.finishRound();
+  });
+
+  hijackKeyboardInput = autorun(() => {
+    if (this.isSolving || this.isVocalAvailable || this.isConsonantAvailable) {
+      // Hijack any keypress when in certain state
+      document.onkeypress = e => {
+        e = e || window.event;
+
+        this.attemptLetter(e.key as Letter);
+      };
+    } else {
+      document.onkeypress = null;
     }
   });
 }

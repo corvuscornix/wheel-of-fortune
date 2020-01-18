@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+
 body {
   background: #070799;
   margin: 0;
+  font-family: 'Muli', sans-serif;
 }
 
 #root,

@@ -23,3 +23,9 @@ export enum Sector {
   POINTS_550 = 550,
   POINTS_500 = 500
 }
+
+export enum AnnouncementType {
+  POSITIVE,
+  NEUTRAL,
+  NEGATIVE
+}

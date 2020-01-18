@@ -12,8 +12,10 @@ const ContainerDiv = styled.div`
 `;
 
 const LetterButton = styled.button<{ vocal?: boolean }>`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  font-weight: bold;
   ${props => props.vocal && 'background: yellow;'};
 
   :disabled {
@@ -29,23 +31,8 @@ export const LetterPanel: FunctionComponent = observer(() => {
     vocalOptions,
     isVocalAvailable,
     isConsonantAvailable,
-    attemptLetter,
-    isSolving
+    attemptLetter
   } = store;
-
-  useEffect(() => {
-    // Hijack any keypress when in certain state
-    document.onkeypress = function(e) {
-      if (isSolving || isVocalAvailable || isConsonantAvailable) {
-        e = e || window.event;
-        attemptLetter(e.key as Letter);
-      }
-    };
-
-    return () => {
-      document.onkeypress = null;
-    };
-  });
 
   return (
     <Panel height="auto">

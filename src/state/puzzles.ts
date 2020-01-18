@@ -1,5 +1,7 @@
+import { Puzzle } from './state';
+
 /* Extracted from https://wofanswers.com/ */
-export const Puzzles = {
+const Puzzles: { [key: string]: string[] } = {
   'The 80s': [
     'ACE VENTURA',
     'ALF FROM MELMAC',
@@ -1414,3 +1416,13 @@ export const Puzzles = {
     'MAGIC SCHOOL BUS'
   ]
 };
+
+export function getRandomPuzzle() {
+  const categories = Object.keys(Puzzles);
+  const randomSubject =
+    categories[Math.floor(Math.random() * Object.keys(Puzzles).length)];
+  const categoryPuzzles = Puzzles[randomSubject];
+  const randomSentence =
+    categoryPuzzles[Math.floor(Math.random() * categoryPuzzles.length)];
+  return new Puzzle(randomSentence, randomSubject);
+}

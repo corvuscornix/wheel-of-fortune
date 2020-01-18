@@ -10,7 +10,6 @@ interface FlexContainerProps {
 export const FlexRow = styled.div<FlexContainerProps>`
   position: relative;
   display: flex;
-  overflow: hidden;
   flex-grow: ${props => props.grow};
   width: ${props => handleStylePropValue(props.width, '100%')};
 `;
@@ -18,10 +17,9 @@ export const FlexRow = styled.div<FlexContainerProps>`
 export const FlexColumn = styled.div<FlexContainerProps>`
   position: relative;
   display: flex;
-  overflow: hidden;
   flex-direction: column;
   flex-grow: ${props => props.grow};
-  height: ${props => handleStylePropValue(props.height, '100%')};
+  height: ${props => handleStylePropValue(props.height, 'auto')};
 `;
 
 export const CenterAlign = styled(FlexColumn)`

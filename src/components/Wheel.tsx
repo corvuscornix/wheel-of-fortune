@@ -22,8 +22,8 @@ const WheelImage = styled.div<{
   rotation: number;
   rotationTime: number;
 }>`
-  width: 400px;
-  height: 400px;
+  width: 350px;
+  height: 350px;
   position: relative;
   background: url('wheel2.png');
   background-size: contain;
@@ -47,7 +47,8 @@ const SpinButton = styled.button`
   top: calc(50% - 75px);
   width: 150px;
   height: 150px;
-  font-size: 24px;
+  font-size: 36px;
+  font-weight: bold;
   background: greenyellow;
   border-radius: 50%;
 

@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro';
+import { styled } from '../../theme/theme';
 
 export const Button = styled.button<{ positive?: boolean; negative?: boolean }>`
   border: none;
@@ -7,9 +7,9 @@ export const Button = styled.button<{ positive?: boolean; negative?: boolean }>`
   font-size: 16px;
   background: ${({ positive, negative, theme }) => {
     if (positive) {
-      return theme.colorConfirm;
+      return theme.color.confirm;
     } else if (negative) {
-      return theme.colorAlarm;
+      return theme.color.alarm;
     } else {
       return '#fafafa';
     }

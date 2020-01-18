@@ -1,6 +1,6 @@
 import './App.css';
 import React, { FunctionComponent } from 'react';
-import styled, { ThemeProvider } from 'styled-components/macro';
+import { ThemeProvider } from 'styled-components/macro';
 import { observer } from 'mobx-react';
 import { useAppState } from './state/stateContext';
 import {
@@ -11,12 +11,8 @@ import {
   NewGameDialog
 } from './components';
 import { FlexColumn, FlexRow, Panel, Button } from './components/layout';
-
-const theme = {
-  colorBg: '#070799',
-  colorConfirm: '#8bc34a',
-  colorAlarm: '#ff5722'
-};
+import { theme, styled } from './theme/theme';
+import { AnnouncementType } from './state/types';
 
 const AppMain = styled.main`
   max-width: 1000px;
@@ -24,18 +20,27 @@ const AppMain = styled.main`
   margin: auto;
 `;
 
-const AnnouncementText = styled.div`
+const AnnouncementText = styled.div<{ type?: AnnouncementType }>`
   text-align: center;
-  font-size: 16px;
+  font-size: 24px;
   padding: 8px;
-  color: white;
+  color: ${({ type, theme }) => {
+    switch (type) {
+      case AnnouncementType.POSITIVE:
+        return theme.color.confirm;
+      case AnnouncementType.NEGATIVE:
+        return theme.color.alarm;
+      default:
+        return 'white';
+    }
+  }};
 `;
 
 const RemainingTime = styled.div<{ timeLow: boolean }>`
   margin-bottom: 16px;
   ${props =>
     props.timeLow
-      ? `color: ${props.theme.colorAlarm};
+      ? `color: ${props.theme.color.alarm};
     font-weight: bold;
     `
       : `color: white;
@@ -49,15 +54,12 @@ const App: FunctionComponent = observer(() => {
     <ThemeProvider theme={theme}>
       <AppMain>
         <FlexColumn>
-          <AnnouncementText>{appState.announcementText}</AnnouncementText>
+          <AnnouncementText type={appState.announcement?.type}>
+            {appState.announcement?.message}
+          </AnnouncementText>
           <PuzzleBoard />
           <LetterPanel />
           <FlexRow grow="2">
-            <FlexColumn grow="2">
-              <FlexRow grow="2">
-                <Wheel />
-              </FlexRow>
-            </FlexColumn>
             <FlexColumn>
               <Panel height="auto">
                 {appState.canSolve && !appState.isSolving && (
@@ -96,6 +98,11 @@ const App: FunctionComponent = observer(() => {
               <Button onClick={() => (appState.isEditingGame = true)}>
                 New game
               </Button>
+            </FlexColumn>
+            <FlexColumn grow="2">
+              <FlexRow grow="2">
+                <Wheel />
+              </FlexRow>
             </FlexColumn>
           </FlexRow>
         </FlexColumn>
