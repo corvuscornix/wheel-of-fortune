@@ -186,7 +186,7 @@ const Puzzles: { [key: string]: string[] } = {
     "WHO'S THE BOSS",
     "YOU CAN'T DO THAT ON TELEVISION",
     'YOU GIVE LOVE A BAD NAME',
-    'ZACK MORRIS'
+    'ZACK MORRIS',
   ],
   'Around The House': [
     'CERAMIC BOWL',
@@ -288,7 +288,7 @@ const Puzzles: { [key: string]: string[] } = {
     'GARDENING TOOLS',
     'DRINKING GLASS',
     'A VASE FILLED WITH SUNFLOWERS',
-    'TOWEL RACKS'
+    'TOWEL RACKS',
   ],
   Occupation: [
     'PRIZE COORDINATOR',
@@ -390,7 +390,7 @@ const Puzzles: { [key: string]: string[] } = {
     'PARAMEDIC',
     'TRAVEL & FEATURES EDITOR',
     'OCEAN LIFEGUARD',
-    'CONSERVATION BIOLOGIST'
+    'CONSERVATION BIOLOGIST',
   ],
 
   Phrase: [
@@ -493,7 +493,7 @@ const Puzzles: { [key: string]: string[] } = {
     'LIVE LAUGH BAKE',
     'NURSING A HANGOVER',
     'BATTERIES NOT INCLUDED',
-    'THE POWERS THAT BE'
+    'THE POWERS THAT BE',
   ],
 
   'Rhyme Time': [
@@ -595,7 +595,7 @@ const Puzzles: { [key: string]: string[] } = {
     'SPACE RACE',
     'HOTSHOT',
     'SPRING FLING',
-    'ZIP YOUR LIP'
+    'ZIP YOUR LIP',
   ],
 
   Place: [
@@ -698,7 +698,7 @@ const Puzzles: { [key: string]: string[] } = {
     'CAREFREE OASIS',
     'RUGGED SEASHORE',
     'STURDY LIVESTOCK PEN',
-    'FOOT OF THE BED'
+    'FOOT OF THE BED',
   ],
   'Living Thing': [
     'WALRUS YEARLING',
@@ -800,7 +800,7 @@ const Puzzles: { [key: string]: string[] } = {
     'SLIMY SALAMANDERS',
     'FAUNA & FLORA',
     'FRENCH POODLE',
-    'A PLETHORA OF BIRD SPECIES'
+    'A PLETHORA OF BIRD SPECIES',
   ],
 
   'Classic TV': [
@@ -903,7 +903,7 @@ const Puzzles: { [key: string]: string[] } = {
     'LITTLE HOUSE ON THE PRAIRIE',
     'PUNKY BREWSTER',
     'BATMOBILE',
-    'THE JAMIE FOXX SHOW'
+    'THE JAMIE FOXX SHOW',
   ],
   'On The Map': [
     'SNOW-CAPPED MOUNTAINS',
@@ -1005,7 +1005,7 @@ const Puzzles: { [key: string]: string[] } = {
     'WINTER PARK',
     'BAILEY ISLAND',
     'MILAN ITALY',
-    'SOUTHERN HEMISPHERE'
+    'SOUTHERN HEMISPHERE',
   ],
   'In The Kitchen': [
     'REFRIGERATOR',
@@ -1107,7 +1107,7 @@ const Puzzles: { [key: string]: string[] } = {
     'TIN PIE PAN',
     'FRUIT BOWL',
     'PUNCH BOWL',
-    'CHIPPED COFFEE MUGS'
+    'CHIPPED COFFEE MUGS',
   ],
   Thing: [
     'POPULAR CAR SHARING PROGRAM',
@@ -1209,7 +1209,7 @@ const Puzzles: { [key: string]: string[] } = {
     'AMBITIOUS PLAN',
     'SOFT BABY BLANKET',
     'JANUARY FEBRUARY & MARCH',
-    'MINOR DISCREPANCY'
+    'MINOR DISCREPANCY',
   ],
   'What Are You Doing': [
     'CAMPING IN A YURT',
@@ -1311,7 +1311,7 @@ const Puzzles: { [key: string]: string[] } = {
     'FEEDING HORSES',
     'BORROWING & SHARING',
     'CUTTING CLASS',
-    'HOPING FOR A SUNNY DAY'
+    'HOPING FOR A SUNNY DAY',
   ],
   'The 90s': [
     'MICKEY MOUSE CLUB',
@@ -1413,15 +1413,161 @@ const Puzzles: { [key: string]: string[] } = {
     'SUPER NINTENDO',
     'RESERVOIR DOGS',
     'FUN DIP',
-    'MAGIC SCHOOL BUS'
-  ]
+    'MAGIC SCHOOL BUS',
+  ],
+};
+
+const finnishPuzzles: { [key: string]: string[] } = {
+  proverbs: [
+    'Aamu on iltaa viisaampi',
+    'Ahkeruus kovan onnen voittaa',
+    'Ahneus kunnian pettää',
+    'Aina se loppuu jota ostetaan',
+    'Auta miestä mäessä, älä mäen alla',
+    'Ei  hoppu hyväksi, eikä kiire kunniaksi',
+    'Ei asiat tappelemalla selviä',
+    'Ei haukku haavaa tee, eikä suuret sanat suuta halkaise',
+    'Ei hullulla huolta ole',
+    'Ei hätä ole tämän näköinen',
+    'Ei ketulta keinot lopu',
+    'Ei kukaan ole seppä syntyessään',
+    'Ei luulo ole tiedon väärti',
+    'Ei maailman suuta mikään tuki',
+    'Ei munaa munaan vaihdeta',
+    'Ei nimi miestä pahenna, jos ei mies nimeä',
+    'Ei ole juopunut köyhä eikä kipeä',
+    'Ei ole koiraa karvoihin katsominen',
+    'Ei oppi ojaan kaada, eikä tieto tieltä työnnä, neuvokasta syrjään sysätä',
+    'Ei pidä viitata jos ei tiedä',
+    'Ei pyyssä kahden jakoa, koppelossa kolmen miehen',
+    'Ei se eksy, joka kysyy, eikä kaadu, joka katsoo',
+    'Ei se haittaa, jos sulla on mopo',
+    'Ei se pelaa joka pelkää',
+    'Ei semmoista vahinkoa ettei hyötyäkin',
+    'Ei sikaa säkissä osteta',
+    'Ei suuret sanat suuta halkaise',
+    'Ei vahinko huutele tullessaan',
+    'Ei yksi pääsky kesää tee',
+    'Ensin asia tutkitaan, sitten vasta selkään hutkitaan',
+    'Happamia sanoi kettu pihlajanmarjoista',
+    'Harakalla on harakan varpaat',
+    'Haukkuu se koira hyvääkin miestä',
+    'Herran pelko on viisauden alku',
+    'Huipulla tuulee',
+    'Hullu se on joka itseään moittii',
+    'Hulluja on yhdeksää lajia',
+    'Hyvin uskallettu on puoliksi voitettu',
+    'Hädässä ystävä tunnetaan',
+    'Härnää hullua: saat tapansa tietää',
+    'Hätä keinon keksii.',
+    'Joka aina on korea, ei koskaan ole kaunis',
+    'Joka kerran keksitään, sitä aina arvellaan',
+    'Joka on nuorena nopea, se on virkku vanhanakin',
+    'Joka toiselle kuoppaa kaivaa, se itse siihen lankeaa',
+    'Joka varastaa neulan, varastaa naulan  ',
+    'Jokaisen olisi hyvä tuntea itsensä',
+    'Jonka nuorena oppii, sen vanhana taitaa',
+    'Jos minua lapsena hoidetaan, kyllä minut isona muistetaa',
+    'Jos sinä olet mies merellä, niin minä olen manni mantereella',
+    'Jota koulu kovempi, sitä oppi selkeämpi!',
+    'Kaunis ääni mutta ammuvainaan nuotti',
+    'Kaunistuu kantokin kun kaunistetaan',
+    'Ken hyvin tekee, paremman edestään löytää',
+    'Kun koulu loppuu tulee kesäloma',
+    'Kun oikein yrittää ja onnistuu tuntuu mukavalta',
+    'Kyllä maailmaan ääntä sopii',
+    'Käsi kauniin tekeepi, sitä silmä katseleepi; suu sanan hyvän puhuupi, sitä mieli muisteleepi',
+    'Käy viisaskin vipuhun, hullu huhtoopi sivuitse',
+    'Lopussa kiitos seisoo',
+    'Löytää se sokeakin kana joskus jyvän',
+    'Löytää se sokeakin kana jyvän',
+    'Maalla kaatuu, vedessä seisoo, mikä se on?',
+    'Maasta pienikin ponnistaa',
+    'Mennä merta edemmäksi kalaan',
+    'Meressä vedet suuret, luoteessa säät lumiset',
+    'Mies makaa, vaatteet valvoo',
+    'Mikä lapset kasvattaa, sekä vanhan vanhentaa?',
+    'Mikä mielessä, se kielessä',
+    'Minkä taaksensa laittaa, sen edestään löytää',
+    'Mitä useampi kokki sen huonompi soppa',
+    'Moni on illalla iloinen, aamulla alakuloinen',
+    'Muna neuvoo kanaa',
+    'Niin metsä vastaa, kuin sinne huutaa',
+    'Niin monta mieltä kuin on päätä',
+    'Nuorena vitsa väännettävä',
+    'Nuoruus ja hulluus, vanhuus ja viisaus',
+    'Nättinä korppikin poikaansa pitää',
+    'Omillaan on hyvä elää',
+    'On vähäkin tyhjää parempi',
+    'Onni yksillä, kesä kaikilla',
+    'Onpa onni orvollakin, sielu vaivaisellakin',
+    'Oppia ikä kaikki',
+    'Oraassa oljen alku, varsassa hyvän hevosen',
+    'Paljon maalla viisaita, kun merellä sattuu vahinko',
+    'Papempi katsoa kuin katua',
+    'Parempi katsoa katua, kuin katua, ettei katsonut katua',
+    'Parempi kilometri väärään, kuin metri vaaraan',
+    'Parempi laiha sopu, kuin lihava riita',
+    'Parempi maassa kuin jumalattoman suussa',
+    'Parempi pyy kädessä kuin kymmenen oksalla',
+    'Parempi suora sileä kuin ruma ruusattu',
+    'Parempi yksi näkijä, kuin kuusi kuulijata',
+    'Pata kattilaa soimaa, musta kylki kummallakin',
+    'Peli jatkuu, sanoi Tsaikovski',
+    'Päivä nauraa pimeyden töille, vesi viinan viisaudelle',
+    'Raha tulee rahan luo',
+    'Rahalla saa ja hevosella pääsee',
+    'Rapatessa roiskuu',
+    'Rehellisyys maan perii',
+    'Rohkea rokan syö',
+    'Rumat vaatteilla koreilee',
+    'Saa tyhjän tekemättä, kovan onnen ottamatta',
+    'Saatu on saalis suurempikin, vähemmälläkin väellä',
+    'Salama ei iske kahta kertaa samaan paikkaan',
+    'Sano minulle,  kenen kanssa sinä seurustelet, niin minä sanon sinulle, kuka sinä olet.',
+    'Senteissä tuhannen alku',
+    'Siinä näkijä missä tekijä',
+    'Siinä paha missä mainitaan',
+    'Siinä varis missä toisetkin linnut',
+    'Siitä pidetään kestä puhutaan',
+    'Sitä kuusta kuuleminen, jonka juurella asunto',
+    'Sitä puuta puskeminen, johon on kiinni kytkettynä',
+    'Suuria kaloja kannattaa pyytää vaikkei niitä saisikaan',
+    'Terve sairasta kantaa',
+    'Tulee häiriö hyvälle, viisaallekkin vahinko',
+    'Tupakasta tuskan saa, pakon piipun polttamisesta',
+    'Tyhjästä on paha nyhjäistä',
+    'Tyhjästä on paha nyhjäistä  ',
+    'Tyhjät tynnyrit kolisevat eniten',
+    'Tyhmä on aina tyytymätön, sillä on puutos puuttumaton',
+    'Tyvestä puuhun noustaan',
+    'Työ tekijäänsä neuvoo',
+    'Vahinko ei tule kello kaulassa',
+    'Vahinko tulee viisallekkin',
+    'Vakka kantensa valitsee',
+    'Valheella on lyhyet jäljet',
+    'Vamma varpaassa, kipu keskellä sydäntä',
+    'Vanha suola janottaa',
+    'Vanhassa vara parempi',
+    'Varas luulee kaikkia varkaaksi',
+    'Vie sika Saksaan, tuo sika Saksasta. Sika sika kumminkin on.',
+    'Viimeiseksi jääminen ei ole mukavaa',
+    'Ylpeys käy lankeemuksen edellä',
+    'Ylpeä saa olla muttei ilkeä',
+    'Älä hullua yllytä',
+    'Älä mene uimaan uhalla, vetoa lyöden vesille',
+    'Älä nuolaise ennen kuin tipahtaa',
+    'Älä sorra sorrettua, särje särjetyn sydäntä',
+    'Älä usko juopunutta, juopunut valehteleepi',
+    'Älä välitä, ei Villekään välittänyt',
+  ],
 };
 
 export function getRandomPuzzle() {
-  const categories = Object.keys(Puzzles);
+  const categories = Object.keys(finnishPuzzles);
   const randomSubject =
-    categories[Math.floor(Math.random() * Object.keys(Puzzles).length)];
-  const categoryPuzzles = Puzzles[randomSubject];
+    categories[Math.floor(Math.random() * Object.keys(finnishPuzzles).length)];
+  const categoryPuzzles = finnishPuzzles[randomSubject];
   const randomSentence =
     categoryPuzzles[Math.floor(Math.random() * categoryPuzzles.length)];
   return new Puzzle(randomSentence, randomSubject);
